@@ -1,4 +1,8 @@
 import xarray as xr
+import pandas as pd
+import global_vars
+import plots
+import codecs
 
 def get_var_reg(v, cond):
     if len(cond) <= 1:
@@ -27,6 +31,7 @@ def find_region(variable, cond, months, na, yr_cond, seasonality=False):
         da_mean_yrs_list = []
 
         # monthly multiannual mean
+        # print('Absolute mean value ', v.mean(skipna=True).values, '+-', v.std(skipna=True).values)
         for m in months:
             da_t = v.where(v.time.dt.month == m, drop=True)
             da_t['time'] = da_t['time'].dt.year
@@ -39,18 +44,18 @@ def find_region(variable, cond, months, na, yr_cond, seasonality=False):
             da_mean_yrs_list.append(float(da_mean_yrs))
             da_m_std_list.append(float(da_m_std))
 
+        # print('mean value', da_mean_yrs_list, '+-', da_m_std_list)
+
         v_mo_var.append(da_mean_yrs_list)
         v_std_var.append(da_m_std_list)
 
 
-        #print('mean value', da_mean_yrs, '+-', da_m_std)
 
     return v_mo_var, v_std_var
 
 
 def var_alloc_val(data, mo_yr_id, var_type, v_id, var_mo_season):
     for v, va in enumerate(data[mo_yr_id][var_type][v_id].keys()):
-        # print(data, mo_yr_id, var_type, va, v_id)
         data[mo_yr_id][var_type][v_id][va] = var_mo_season[v]
 
 
@@ -60,3 +65,115 @@ def read_files_data(path_dir):
                              concat_dim='time',
                              combine='nested')
     return data
+
+def regions_dict():
+    c = read_files_data(global_vars.path_omf + "oceanfilms_omf_*")
+
+    lat = c.lat
+    lon = c.lon
+
+    if global_vars.seasonality_stations:
+        conditions = [[[lat, 63, 82], [lon, 1, 10]],
+                      [[lat, 37, 42], [lon, -75, -65]],
+                      [[lat, 36, 45], [lon, 1, 14]],
+                      [[lat, 12, 25], [lon, -32, -18]],
+                      [[lat, -17, -5], [lon, -85, -77]],
+                      [[lat, -70, -58], [lon, -70, -58]], ]
+
+        reg_data_globe = {'NAO': [],
+                          'NWAO, SB': [],
+                          'AS, WMED': [],
+                          'SATL, CVAO': [],
+                          'PUR': [],
+                          'WAP': []
+                          }
+
+        plots.plot_map_box_station(0, conditions, reg_data_globe, create_fig=True)
+        file_name = 'reg_data_stat_bx'
+
+    else:
+        conditions = [[[lat, 63, 90]],
+                      [[lat, -90, -63]],
+                      [[lat, 23, 63]],
+                      [[lat, -63, -23]],
+                      [[lat, -23, 23]], ]
+
+        reg_data_globe = {'Arctic Ocean': [],
+                          'Southern Ocean': [],
+                          'Northern Subtropics': [],
+                          'Southern Subtropics': [],
+                          'Equator': [],
+                          }
+        file_name = 'reg_data_global_regions'
+    return conditions, reg_data_globe, file_name
+
+
+def get_monthly_group_mean(data, var_name):
+    times = pd.to_datetime(data['Date/Time'], dayfirst=False)
+    data_month = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].mean()
+    data_month_std = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].std()
+    months = [i[1] for i in data_month.index]
+    return data_month, data_month_std, months
+
+def read_ocean_data_monthly(axs):
+    file_water = "../SEAWATER_data.csv"
+    doc = codecs.open(file_water, 'r', 'UTF-8')  # open for reading with "universal" type set 'rU'
+    data_water = pd.read_csv(doc, sep=',')
+    data_water.loc[:, ('Date/Time')] = data_water['Date/Time'].apply(pd.to_datetime, dayfirst=False)
+
+    dict_stat = {'WAP':{'name':'WAP'},
+                 'PASCAL':{'name':'NAO'},
+                 'CVAO':{'name':'CVAO'},
+                 'PUR12':{'name':'PUR12'},
+                 'PUR17':{'name':'PUR17'},
+                 'SB':{'name':'SB'},
+                 'NAO':{'name':'NWAO'},
+                 'SATL':{'name':'SATL'},
+                 'WMED':{'name':'WMED'},
+                 'AS08':{'name':'AS'},}
+
+    var_names = [['DCCHO [µMC]'],
+                 ['DCCHO [µMC]'],
+                 ['DCCHO [µMC]', 'DCAA [µMC]', 'PG'],
+                 ['DCCHO [µMC]', 'DCAA [µMC]'],
+                 ['DCCHO [µMC]'],
+                 ['DCAA [µMC]'],
+                 ['DCAA [µMC]'],
+                 ['DCAA [µMC]'],
+                 ['DCAA [µMC]'],
+                 ['PG'],]
+
+    for i, d in enumerate(dict_stat):
+        dict_stat[d]['dataframe'] = data_water[data_water['Event'] == d]
+        dict_stat[d]['var_names'] = var_names[i]
+        val_m, val_m_std, m = get_monthly_group_mean(dict_stat[d]['dataframe'], var_names[i])
+        dict_stat[d]['monthly_mean'] = val_m
+        dict_stat[d]['monthly_mean_std'] = val_m_std
+        dict_stat[d]['months'] = m
+        c_list = []
+        for c in (var_names[i]):
+            if c == 'DCCHO [µMC]':
+                c_list.append('blue')
+            if c == 'DCAA [µMC]':
+                c_list.append('green')
+            if c == 'PG':
+                c_list.append('red')
+        dict_stat[d]['colors'] = c_list
+
+    dict_stat_groups = {'WAP': {'names': [dict_stat['WAP']]},
+                     'NAO': {'names': [dict_stat['PASCAL']]},
+                     'SATL, CVAO': {'names': [dict_stat['SATL'], dict_stat['CVAO']]},
+                     'PUR': {'names': [dict_stat['PUR12'], dict_stat['PUR17']]},
+                     'NWAO, SB': {'names': [dict_stat['NAO'], dict_stat['SB']]},
+                     'AS, WMED': {'names': [dict_stat['AS08'], dict_stat['WMED']]}, }
+
+    return dict_stat_groups
+
+
+
+
+
+
+
+
+
