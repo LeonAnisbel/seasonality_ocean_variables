@@ -5,6 +5,8 @@ import plots
 import codecs
 
 def get_var_reg(v, cond):
+    """ This function is used to select a region in variable data "v" under withing the latitude and
+    longitude limits define in "cond" """
     if len(cond) <= 1:
         v = v.where((cond[0][0] > cond[0][1]) &
                     (cond[0][0] < cond[0][2])
@@ -19,6 +21,9 @@ def get_var_reg(v, cond):
 
 
 def find_region(variable, cond, months, na, yr_cond, seasonality=False):
+    """ This function calculates the multiannual monthly mean values of "months"
+    over the period "yr_cond" defining the years to consider in the average for the regions
+    definition of latitude and longitude limits in "cond" """
     v_mo_var = []
     v_std_var = []
 
@@ -49,24 +54,25 @@ def find_region(variable, cond, months, na, yr_cond, seasonality=False):
         v_mo_var.append(da_mean_yrs_list)
         v_std_var.append(da_m_std_list)
 
-
-
     return v_mo_var, v_std_var
 
 
 def var_alloc_val(data, mo_yr_id, var_type, v_id, var_mo_season):
+    """ Allocates variable into the dictionary """
     for v, va in enumerate(data[mo_yr_id][var_type][v_id].keys()):
         data[mo_yr_id][var_type][v_id][va] = var_mo_season[v]
 
 
 
 def read_files_data(path_dir):
+    """ Read model data netcdf files """
     data = xr.open_mfdataset(path_dir,
                              concat_dim='time',
                              combine='nested')
     return data
 
 def regions_dict():
+    """ This function creates the dictionaries with the region limits  """
     c = read_files_data(global_vars.path_omf + "oceanfilms_omf_*")
 
     lat = c.lat
@@ -109,6 +115,7 @@ def regions_dict():
 
 
 def get_monthly_group_mean(data, var_name):
+    """ This function calculates the monthly mean values and standard deviation (used for observational data)  """
     times = pd.to_datetime(data['Date/Time'], dayfirst=False)
     data_month = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].mean()
     data_month_std = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].std()
@@ -116,6 +123,8 @@ def get_monthly_group_mean(data, var_name):
     return data_month, data_month_std, months
 
 def read_ocean_data_monthly(axs):
+    """ This function reads the seawater samples data, computes the monthly averages,
+     allocate them into a dictionary grouped by the box regions defined in global_vars.seasonality_stations  """
     file_water = "../SEAWATER_data.csv"
     doc = codecs.open(file_water, 'r', 'UTF-8')  # open for reading with "universal" type set 'rU'
     data_water = pd.read_csv(doc, sep=',')
