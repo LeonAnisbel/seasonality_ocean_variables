@@ -80,18 +80,18 @@ def regions_dict():
 
     if global_vars.seasonality_stations:
         conditions = [[[lat, 63, 82], [lon, 1, 10]],
-                      [[lat, 37, 42], [lon, -75, -65]],
-                      [[lat, 36, 45], [lon, 1, 14]],
+                      [[lat, -70, -58], [lon, -70, -58]],
                       [[lat, 12, 25], [lon, -32, -18]],
                       [[lat, -17, -5], [lon, -85, -77]],
-                      [[lat, -70, -58], [lon, -70, -58]], ]
+                      [[lat, 37, 42], [lon, -75, -65]],
+                      [[lat, 36, 45], [lon, 1, 14]],]
 
         reg_data_globe = {'NAO': [],
-                          'NWAO, SB': [],
-                          'AS, WMED': [],
+                          'WAP': [],
                           'SATL, CVAO': [],
                           'PUR': [],
-                          'WAP': []
+                          'NWAO, SB': [],
+                          'AS, WMED': [],
                           }
 
         plots.plot_map_box_station(0, conditions, reg_data_globe, create_fig=True)
@@ -125,7 +125,7 @@ def get_monthly_group_mean(data, var_name):
 def read_ocean_data_monthly(axs):
     """ This function reads the seawater samples data, computes the monthly averages,
      allocate them into a dictionary grouped by the box regions defined in global_vars.seasonality_stations  """
-    file_water = "../SEAWATER_data.csv"
+    file_water = "../../../SEAWATER_data.csv"
     doc = codecs.open(file_water, 'r', 'UTF-8')  # open for reading with "universal" type set 'rU'
     data_water = pd.read_csv(doc, sep=',')
     data_water.loc[:, ('Date/Time')] = data_water['Date/Time'].apply(pd.to_datetime, dayfirst=False)
@@ -166,7 +166,7 @@ def read_ocean_data_monthly(axs):
             if c == 'DCAA [µMC]':
                 c_list.append('green')
             if c == 'PG':
-                c_list.append('red')
+                c_list.append('darkred')
         dict_stat[d]['colors'] = c_list
 
     dict_stat_groups = {'WAP': {'names': [dict_stat['WAP']]},

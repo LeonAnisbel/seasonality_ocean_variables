@@ -59,7 +59,7 @@ def plot_each_station(ax2, ax3, data):
     for sta in data['names']:
         for v_id, v in enumerate(sta['monthly_mean'].columns):
             new_months = [m - 1 for m in sta['months']]
-            if sta['colors'][v_id]=='red': ax = ax3
+            if sta['colors'][v_id]=='darkred': ax = ax3
             else: ax = ax2
             ax.errorbar(new_months,
                        sta['monthly_mean'][v].values,
@@ -189,6 +189,7 @@ def plot_seasonality_regions_with_stations(data):
     c = global_vars.color_regions
     dict_stat_groups= utils.read_ocean_data_monthly(ax)
 
+    color_regions = ['royalblue', 'orangered', 'purple', 'limegreen', 'pink', 'orange']
     order_keys = ['NAO', 'WAP', 'SATL, CVAO', 'PUR', 'NWAO, SB', 'AS, WMED']
     f = 16
     for i, region in enumerate(order_keys):
