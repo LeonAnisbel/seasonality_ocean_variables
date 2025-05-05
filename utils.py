@@ -32,27 +32,14 @@ def find_region(variable, cond, months, na, yr_cond, seasonality=False):
         v = v.where((v.time.dt.year > yr_cond[0]) &
                     (v.time.dt.year < yr_cond[1]), drop=True)
 
-        da_m_std_list = []
-        da_mean_yrs_list = []
+        v_m = v.groupby(v.time.dt.month).mean('time')
+        v_m_lalo = v_m.mean(['lat', 'lon'], skipna=True).values
+        v_m_lalo_std = v_m.std(['lat', 'lon'], skipna=True).values
 
-        # monthly multiannual mean
-        # print('Absolute mean value ', v.mean(skipna=True).values, '+-', v.std(skipna=True).values)
-        for m in months:
-            da_t = v.where(v.time.dt.month == m, drop=True)
-            da_t['time'] = da_t['time'].dt.year
+        print(na, 'mean value', v_m_lalo, '+-', v_m_lalo_std, '\n \n')
 
-            da_m_std = da_t.std(dim=('lat', 'lon', 'time'),
-                                skipna=True).values
-            da_mean_yrs = da_t.mean(dim=('time', 'lat', 'lon'),
-                                    skipna=True).values
-
-            da_mean_yrs_list.append(float(da_mean_yrs))
-            da_m_std_list.append(float(da_m_std))
-
-        # print('mean value', da_mean_yrs_list, '+-', da_m_std_list)
-
-        v_mo_var.append(da_mean_yrs_list)
-        v_std_var.append(da_m_std_list)
+        v_mo_var.append(v_m_lalo)
+        v_std_var.append(v_m_lalo_std)
 
     return v_mo_var, v_std_var
 
@@ -84,7 +71,10 @@ def regions_dict():
                       [[lat, 12, 25], [lon, -32, -18]],
                       [[lat, -17, -5], [lon, -85, -77]],
                       [[lat, 37, 42], [lon, -75, -65]],
-                      [[lat, 36, 45], [lon, 1, 14]],]
+                      [[lat, 36, 45], [lon, 1, 14]],
+                      # [[lat, -37, -36], [lon, 77, 78]],
+
+                      ]
 
         reg_data_globe = {'NAO': [],
                           'WAP': [],
@@ -92,10 +82,11 @@ def regions_dict():
                           'PUR': [],
                           'NWAO, SB': [],
                           'AS, WMED': [],
+                          # 'AI':[]
                           }
 
         plots.plot_map_box_station(0, conditions, reg_data_globe, create_fig=True)
-        file_name = 'reg_data_stat_bx'
+        file_name = 'reg_data_stat_bx_test'
 
     else:
         conditions = [[[lat, 63, 90]],

@@ -23,7 +23,7 @@ def plot_map_box_station(axs, conditions, reg_data_globe, create_fig=False):
     else: ax = axs
 
     ax.coastlines(resolution='110m', color='k')
-    ax.set_extent([-100, 60, -90, 90], crs=ccrs.PlateCarree())
+    ax.set_extent([-100, 30, -90, 90], crs=ccrs.PlateCarree())
     color= global_vars.color_regions
     for i, c, n in zip(conditions, color, list(reg_data_globe.keys())):
         low_lim_lat = i[0][1]
@@ -74,10 +74,8 @@ def plot_monthly_series_pannel(axes, C_omf, std_omf, title, limits, var_id, pos,
     ax3 = ax2.twinx()
     if var_id == 'OMF':
         subindex = '$_{aer}$'
-        ylab = f'OMF (PCHO{subindex}, DCAA{subindex}) '
-        ax3_label = f"OMF PL{subindex}"
-
-        #     ax2.set_yscale('log')
+        ylab = f'PCHO{subindex}, DCAA{subindex}'
+        ax3_label = f"PL{subindex}"
 
     elif var_id == 'Biom':
         subindex = '$_{sw}$'
@@ -85,8 +83,8 @@ def plot_monthly_series_pannel(axes, C_omf, std_omf, title, limits, var_id, pos,
             ylab = f'PCHO{subindex}, DCAA{subindex}'
             ax3_label = f'PL{subindex}'
         else:
-            ylab = f'Concentration PCHO{subindex}, DCAA{subindex}'+'\n($mmol\ C\ m^{-3}$)'
-            ax3_label = f'Concentration PL{subindex}'+'($mmol\ C\ m^{-3}$)'
+            ylab = f'PCHO{subindex}, DCAA{subindex}'
+            ax3_label = f'PL{subindex}'
 
     p2, = ax2.plot(t_ax, C_omf[0], label=f'PCHO{subindex}', linewidth=2, color='b')
     fill_between_shade(ax2, t_ax, C_omf[0], std_omf[0], 'b')
@@ -150,9 +148,11 @@ def plot_seasonality_regions(data):
     ax = axs.flatten()
     ax1 = [ax[0], ax[2], ax[4], ax[6], ax[8]]
     ax2 = [ax[1], ax[3], ax[5], ax[7], ax[9]]
-    fig.subplots_adjust(right=0.75)
+    fig.subplots_adjust(wspace=0.5)
+    fig.subplots_adjust(hspace=0.3)
+
     c = len(ax1)*['k']
-    f = 18
+    f = 20
     for i, region in enumerate(list(data.keys())):
         C_omf, C_omf_std = get_vals_std(data, region, 'OMF')
         C_biom, C_biom_std = get_vals_std(data, region, 'Biom')
@@ -164,17 +164,26 @@ def plot_seasonality_regions(data):
 
         if i == 4: laxis = True
         else: laxis = False
+        if region == 'Arctic Ocean':
+            title = 'OMF \n \n \n \n\n' + region
+        else: title = region
+
         p2omf, p21omf, p22omf = plot_monthly_series_pannel(ax2[i], C_omf, C_omf_std,
-                                         region, limits_omf[i], 'OMF', 0.27, c[i], [], f, lower_axis=laxis)
+                                         title, limits_omf[i], 'OMF', 0.27, c[i], [], f, lower_axis=laxis)
+
+        if region == 'Arctic Ocean':
+            title = 'Ocean biomolecule concentration \n (mmol C m$^{-3}$) \n \n \n \n' + region
+        else: title = region
         p2oc, p21oc, p22oc = plot_monthly_series_pannel(ax1[i], C_biom, C_biom_std,
-                                         region, limits_biom[i], 'Biom', 0.27, c[i], [],f, lower_axis=laxis)
+                                         title, limits_biom[i], 'Biom', 0.27, c[i], [],f, lower_axis=laxis)
 
-        if i == 0:    fig.legend(handles=[p2omf, p21omf, p22omf], ncol=3,
-               bbox_to_anchor=(0.92, 1.03), fontsize=f)
         if i == 0:    fig.legend(handles=[p2oc, p21oc, p22oc], ncol=3,
-               bbox_to_anchor=(0.1, 1.), loc='lower left', fontsize=f)
+               bbox_to_anchor=(0.1, 0.9), loc='lower left', fontsize=f)
+        if i == 0:    fig.legend(handles=[p2omf, p21omf, p22omf], ncol=3,
+               bbox_to_anchor=(0.92, 0.93), fontsize=f)
 
-    fig.tight_layout()
+
+    # fig.tight_layout()
     plt.savefig(f'Multiannual monthly subregions_updated_global.png',
                 dpi=300,
                 bbox_inches="tight")
@@ -184,37 +193,57 @@ def plot_seasonality_regions_with_stations(data):
     """ This function creates the figure, define axes and other parameters relevant for plotting the
       seasonality of marine biomolecules and observational data for regions defined around the station
       locations """
-    fig, axs = plt.subplots(2, 3, figsize=(18, 8), constrained_layout=True)  # 15,8
+    fig, axs = plt.subplots(2, 3,
+                            figsize=(18, 8),
+                            constrained_layout=True)  # 15,8
+    plt.title('Ocean biomolecule concentration (mmol C m$^{-3}$) \n \n \n \n')
+
     ax = axs.flatten()
     c = global_vars.color_regions
     dict_stat_groups= utils.read_ocean_data_monthly(ax)
 
-    color_regions = ['royalblue', 'orangered', 'purple', 'limegreen', 'pink', 'orange']
-    order_keys = ['NAO', 'WAP', 'SATL, CVAO', 'PUR', 'NWAO, SB', 'AS, WMED']
-    f = 16
+    order_keys = ['NAO', 'WAP', 'SATL, CVAO', 'PUR', 'NWAO, SB', 'AS, WMED'] #'AI'
+    print(data.keys())
+    f = 18
+
     for i, region in enumerate(order_keys):
         C_biom, C_biom_std = get_vals_std(data, region, 'Biom')
         # limits_biom = [[7, 1.5], [8, 1.], [6, 0.4], [9, 0.3],[9, 0.5],[6.5, 1.]]
         limits_biom = [[7, 1.5],[6.5, 1.], [9, 0.3],[9, 0.7], [8, 1.], [6, 0.4]]
 
-
+        print(dict_stat_groups)
         if i == 4 or i == 3 or i == 5: laxis = True
         else: laxis = False
-        p2oc, p21oc, p22oc = plot_monthly_series_pannel(ax[i], C_biom, C_biom_std,
-                                         region, limits_biom[i], 'Biom', 0.27, c[i],
-                                        dict_stat_groups[region],
+        title = region
+        # if region == 'AI': region = 'AS, WMED'
+        p2oc, p21oc, p22oc = plot_monthly_series_pannel(ax[i],
+                                                        C_biom,
+                                                        C_biom_std,
+                                                        title,
+                                                        limits_biom[i],
+                                                        'Biom',
+                                                        0.27,
+                                                        c[i],
+                                                        dict_stat_groups[region],
                                                         f,
-                                        lower_axis=laxis, stations=True)
+                                                        lower_axis=laxis,
+                                                        stations=True)
 
-        if i == 0:    fig.legend(handles=[p2oc, p21oc, p22oc], ncol=3,
-               bbox_to_anchor=(0.35, 1.0), loc='lower left', fontsize=f)
+        if i == 0:    fig.legend(handles=[p2oc, p21oc, p22oc],
+                                 ncol=3,
+                                 bbox_to_anchor=(0.35, 1.0),
+                                 loc='lower left',
+                                 fontsize=f)
 
 
     proj = ccrs.PlateCarree()
-    ax1 = fig.add_axes([0.9, 0.3, 0.4, 0.45], projection=proj)
+    ax1 = fig.add_axes([0.9, 0.3, 0.4, 0.45],
+                       projection=proj)
     conditions, reg_data_globe, _ = utils.regions_dict()
-    plot_map_box_station(ax1, conditions, reg_data_globe, create_fig=False)
-
+    plot_map_box_station(ax1,
+                         conditions,
+                         reg_data_globe,
+                         create_fig=False)
     plt.savefig(f'Multiannual monthly subregions_updated_global_stations.png',
                 dpi=300,
                 bbox_inches="tight")
