@@ -55,48 +55,84 @@ C_omf_pro = C_omf['OMF_PRO']
 C_omf_lip = C_omf['OMF_LIP']
 C_omf_tot = C_omf_pol + C_omf_pro + C_omf_lip
 
-months = [np.arange(1,13)]
 conditions, reg_data_globe, file_name = utils.regions_dict()
+
+var_ocean = [C_conc_tot,
+            C_pl,
+            C_pcho,
+            C_dcaa,
+            C_pcho+C_dcaa]
+var_omf = [C_omf_tot,
+           C_omf['OMF_POL'],
+           C_omf['OMF_PRO'],
+           C_omf['OMF_LIP'],
+           ]
+list_vars = [var_ocean,
+            var_omf]
+if global_vars.arctic_regions:
+    data_dir_ocean = global_vars.path_ocean
+    C_temp = utils.read_files_data(data_dir_ocean + "temperature/sst*.nc")['sst'] * C_ice_msk
+    C_phyN = utils.read_files_data(data_dir_ocean + "PhyN*")['VAR'] * C_ice_msk
+    C_diaN = utils.read_files_data(data_dir_ocean + "DiaN*")['VAR'] * C_ice_msk
+    C_phyC = utils.read_files_data(data_dir_ocean + "PhyC*")['VAR'] * C_ice_msk
+    C_diaC = utils.read_files_data(data_dir_ocean + "DiaC*")['VAR'] * C_ice_msk
+
+    bx_size = abs(C_ice.lat.values[1] - C_ice.lat.values[0])
+    grid_bx_area = (bx_size * 110.574) * (
+                bx_size * 111.320 * np.cos(np.deg2rad(C_ice.lat)))  # from % sea ice of grid to km2
+    C_ice_area_px = C_ice * grid_bx_area
+    C_ice = C_ice * 100
+
+    var_other = [C_phyC,
+                 C_diaC,
+                 C_phyC + C_diaC,
+                 C_ice,
+                 C_temp,
+                 C_ice_area_px]
+    list_vars.append(var_other)
 
 for na in reg_data_globe.keys():
     reg_data_globe[na]={'months_30_yr':[]}
     for i,mo in enumerate(reg_data_globe[na].keys()):
         reg_data_globe[na][mo]= {
-                              'var_seasonality':{'OMF':[]}, #'Biom':[],
-                              'var_season_std':{ 'OMF':[]}, #'Biom':[],
+                              'var_seasonality':{},
+                              'var_season_std':{}
                               }
+        if global_vars.arctic_regions:
+            reg_data_globe[na][mo]['var_data_region'] = {}
         for v,va in enumerate(reg_data_globe[na][mo].keys()):
             reg_data_globe[na][mo][va]['Biom']= {'Total concentration':[],
                                             'PL':[],
                                             'PCHO':[],
                                             'DCAA':[],
-                                            }
+                                            'PCHO_DCAA': [],
+                                                 }
             reg_data_globe[na][mo][va]['OMF']= {
                                            'Total OMF':[],
                                            'PCHO':[],
                                            'DCAA':[],
                                            'PL':[],}
 
-var_ocean = [C_conc_tot,
-            C_pl,
-            C_pcho,
-            C_dcaa]
-
-var_omf = [C_omf_tot,
-             C_omf['OMF_POL'],
-             C_omf['OMF_PRO'],
-           C_omf['OMF_LIP'],
-           ]
+            if global_vars.arctic_regions:
+                reg_data_globe[na][mo][va]['Other'] = {
+                                                    'Phy': [],
+                                                    'Dia': [],
+                                                    'PhyDia': [],
+                                                    'SIC': [],
+                                                    'SST': [],
+                                                    'ICE_area_px': []}
 
 
-years_set = [[1989,2020]]*len(months)
+years_set = [1989,2020]
 
 data = []
-for i_id, var in enumerate([var_ocean, var_omf]):
+for i_id, var in enumerate(list_vars):
     if i_id == 0:
         v_id = 'Biom'
     elif i_id == 1:
         v_id = 'OMF'
+    elif i_id == 2:
+        v_id = 'Other'
 
     print(i_id, v_id)
     region = []
@@ -109,17 +145,15 @@ for i_id, var in enumerate([var_ocean, var_omf]):
     for i,na in enumerate(reg_data_globe.keys()):   
         print(na)
         for y,yr in enumerate(list(reg_data_globe[na].keys())):
-            mon = months[y]
-
-            var_mo_season, var_season_std = utils.find_region(var,
+            var_mo_season, var_season_std, var_data_reg = utils.find_region(var,
                                                          conditions[i],
-                                                         mon,
                                                          na,
-                                                         years_set[y],
-                                                         seasonality=True)
+                                                         years_set)
             utils.var_alloc_val(reg_data_globe[na], yr, 'var_seasonality',v_id, var_mo_season)
             utils.var_alloc_val(reg_data_globe[na], yr, 'var_season_std',v_id, var_season_std)
 
+            if global_vars.arctic_regions:
+                utils.var_alloc_val(reg_data_globe[na], yr, 'var_data_region', v_id, var_data_reg)
 
 
 with open(file_name+'.pkl', 'wb') as handle:

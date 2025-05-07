@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import matplotlib.patches as mpatches
-from bokeh.colors.named import colors
 
 import global_vars
 import utils

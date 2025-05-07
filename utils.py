@@ -3,6 +3,17 @@ import pandas as pd
 import global_vars
 import plots
 import codecs
+import numpy as np
+import warnings
+
+warnings.filterwarnings(
+    "ignore",
+    category=RuntimeWarning,
+    message="invalid value encountered in divide"
+)
+
+def rm_nan(data):
+    return [0 if np.isnan(i) else i for i in data]
 
 def get_var_reg(v, cond):
     """ This function is used to select a region in variable data "v" under withing the latitude and
@@ -20,12 +31,13 @@ def get_var_reg(v, cond):
     return v
 
 
-def find_region(variable, cond, months, na, yr_cond, seasonality=False):
+def find_region(variable, cond, na, yr_cond):
     """ This function calculates the multiannual monthly mean values of "months"
     over the period "yr_cond" defining the years to consider in the average for the regions
     definition of latitude and longitude limits in "cond" """
     v_mo_var = []
     v_std_var = []
+    v_data = []
 
     for v in variable:
         v = get_var_reg(v, cond)
@@ -36,12 +48,13 @@ def find_region(variable, cond, months, na, yr_cond, seasonality=False):
         v_m_lalo = v_m.mean(['lat', 'lon'], skipna=True).values
         v_m_lalo_std = v_m.std(['lat', 'lon'], skipna=True).values
 
-        print(na, 'mean value', v_m_lalo, '+-', v_m_lalo_std, '\n \n')
+        # print(na, 'mean value', v_m_lalo, '+-', v_m_lalo_std, '\n \n')
 
         v_mo_var.append(v_m_lalo)
         v_std_var.append(v_m_lalo_std)
+        v_data.append(v_m)
 
-    return v_mo_var, v_std_var
+    return v_mo_var, v_std_var, v_data
 
 
 def var_alloc_val(data, mo_yr_id, var_type, v_id, var_mo_season):
@@ -76,7 +89,7 @@ def regions_dict():
 
                       ]
 
-        reg_data_globe = {'NAO': [],
+        reg_data = {'NAO': [],
                           'WAP': [],
                           'SATL, CVAO': [],
                           'PUR': [],
@@ -85,7 +98,7 @@ def regions_dict():
                           # 'AI':[]
                           }
 
-        plots.plot_map_box_station(0, conditions, reg_data_globe, create_fig=True)
+        plots.plot_map_box_station(0, conditions, reg_data, create_fig=True)
         file_name = 'reg_data_stat_bx_test'
 
     else:
@@ -95,14 +108,43 @@ def regions_dict():
                       [[lat, -63, -23]],
                       [[lat, -23, 23]], ]
 
-        reg_data_globe = {'Arctic Ocean': [],
+        reg_data = {'Arctic Ocean': [],
                           'Southern Ocean': [],
                           'Northern Subtropics': [],
                           'Southern Subtropics': [],
                           'Equator': [],
                           }
         file_name = 'reg_data_global_regions'
-    return conditions, reg_data_globe, file_name
+
+    if global_vars.arctic_regions:
+        conditions = [[[lat, 63, 90]],
+                      # [[lat,76,82], [lon,-20,20]],
+                      [[lat, 66, 82], [lon, 20, 60]],
+                      [[lat, 66, 82], [lon, 60, 100]],
+                      [[lat, 66, 82], [lon, 100, 140]],
+                      [[lat, 66, 82], [lon, 140, 180]],
+                      [[lat, 66, 82], [lon, -180, -160]],
+                      [[lat, 66, 82], [lon, -160, -120]],
+                      [[lat, 66, 82], [lon, -120, -70]],
+                      [[lat, 66, 82], [lon, -70, -50]],
+                      [[lat, 66, 82], [lon, -30, 20]],
+                      [[lat, 82, 90]], ]
+
+        reg_data = {'Arctic': [],
+                    # 'Fram Strait':[],
+                    'Barents Sea': [],
+                    'Kara Sea': [],
+                    'Laptev Sea': [],
+                    'East-Siberian Sea': [],
+                    'Chukchi Sea': [],
+                    'Beaufort Sea': [],
+                    'Canadian Archipelago': [],
+                    'Baffin Bay': [],
+                    'Greenland & Norwegian Sea': [],
+                    'Central Arctic': [],
+                    }
+        file_name = 'reg_data_arctic_regions'
+    return conditions, reg_data, file_name
 
 
 def get_monthly_group_mean(data, var_name):
