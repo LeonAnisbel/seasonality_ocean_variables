@@ -10,6 +10,7 @@ if global_vars.arctic_regions:
     with open('reg_data_arctic_regions.pkl', 'rb') as f:
         reg_data_globe_stat = pickle.load(f)
         arctic_plots.seasonality_conc_omf_arctic_and_reg(reg_data_globe_stat)
+        print('Done')
         arctic_plots.seasonality_plot_thesis(reg_data_globe_stat)
         arctic_plots.regions_map(reg_data_globe_stat)
 if stations_seasonality:

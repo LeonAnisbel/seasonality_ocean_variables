@@ -195,7 +195,7 @@ def plot_seasonality_regions_with_stations(data):
     fig, axs = plt.subplots(2, 3,
                             figsize=(18, 8),
                             constrained_layout=True)  # 15,8
-    plt.title('Ocean biomolecule concentration (mmol C m$^{-3}$) \n \n \n \n')
+    fig.subplots_adjust(hspace=0.4)
 
     ax = axs.flatten()
     c = global_vars.color_regions
@@ -213,6 +213,7 @@ def plot_seasonality_regions_with_stations(data):
         print(dict_stat_groups)
         if i == 4 or i == 3 or i == 5: laxis = True
         else: laxis = False
+
         title = region
         # if region == 'AI': region = 'AS, WMED'
         p2oc, p21oc, p22oc = plot_monthly_series_pannel(ax[i],
@@ -243,6 +244,12 @@ def plot_seasonality_regions_with_stations(data):
                          conditions,
                          reg_data_globe,
                          create_fig=False)
+
+    fig.text(0.33, 1.15,
+              "Ocean biomolecule concentration (mmol C m$^{-3}$)",
+              size=f,
+              weight='bold',)
+    # fig.tight_layout()/
     plt.savefig(f'Multiannual monthly subregions_updated_global_stations.png',
                 dpi=300,
                 bbox_inches="tight")

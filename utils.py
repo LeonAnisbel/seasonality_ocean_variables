@@ -10,7 +10,7 @@ warnings.filterwarnings(
     "ignore",
     category=RuntimeWarning,
     message="invalid value encountered in divide"
-)
+    )
 
 def rm_nan(data):
     return [0 if np.isnan(i) else i for i in data]
@@ -31,6 +31,16 @@ def get_var_reg(v, cond):
     return v
 
 
+def weighted_mean(data):
+    lat_rad = np.deg2rad(data.lat)
+    weights = np.cos(lat_rad)
+    weights /= weights.sum()
+    weighted_data = data.weighted(weights)
+    weighted_data_mean = weighted_data.mean(dim=("lat", "lon"), skipna=True).values
+    weighted_data_std = weighted_data.std(dim=("lat", "lon"), skipna=True).values
+
+    return weighted_data_std, weighted_data_mean
+
 def find_region(variable, cond, na, yr_cond):
     """ This function calculates the multiannual monthly mean values of "months"
     over the period "yr_cond" defining the years to consider in the average for the regions
@@ -45,8 +55,7 @@ def find_region(variable, cond, na, yr_cond):
                     (v.time.dt.year < yr_cond[1]), drop=True)
 
         v_m = v.groupby(v.time.dt.month).mean('time')
-        v_m_lalo = v_m.mean(['lat', 'lon'], skipna=True).values
-        v_m_lalo_std = v_m.std(['lat', 'lon'], skipna=True).values
+        v_m_lalo_std, v_m_lalo = weighted_mean(v_m)
 
         # print(na, 'mean value', v_m_lalo, '+-', v_m_lalo_std, '\n \n')
 
