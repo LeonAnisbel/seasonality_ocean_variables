@@ -106,9 +106,9 @@ def plot_seasons_reg(ax, C_conc, C_omf, na, c, lw, ylabels, ylims, reg_gray_line
         return p2, p3
 
 
-def plot_seasons_reg_conc_ice(ax, var, na, c, title, vm, lower_axis=False):
+def plot_seasons_reg_conc_ice(ax, var, na, c, title, vm, lstyle, lower_axis=False):
     p1, = ax.plot(t_ax, var,
-                  linewidth=1.5, label=na, color=c, linestyle='solid')  # + ' ['+diff+']', )#linestyle = li_style,
+                  linewidth=1.5, label=na, color=c, linestyle=lstyle)  # + ' ['+diff+']', )#linestyle = li_style,
     ax.set_title('\n '+ title[0][0],
                  loc='right',
                  fontsize=f,
@@ -277,7 +277,19 @@ def seasonality_plot_thesis(reg_data):
         limits = [[0, 7.5], [1e-6, 1e0], [0.1, 0.23]]
 
         leg_list = []
-        style = ['dashed', 'solid', 'dotted']
+        linestyle = [
+            '-',  # Arctic (solid)
+            '--',  # Barents Sea (dashed)
+            ':',  # Kara Sea (dotted)
+            '-.',  # Laptev Sea (dash–dot)
+            (0, (3, 5, 1, 5)),  # East-Siberian Sea (long-dash + dot)
+            (0, (5, 1, 1, 1)),  # Chukchi Sea (medium-dash + dot)
+            (0, (5, 2, 1, 2)),  # Beaufort Sea (medium-dash + dot, slightly longer gaps)
+            (0, (3, 1, 1, 1, 1, 1)),  # Canadian Archipelago (short-dash + multi-dot)
+            (0, (1, 5)),  # Baffin Bay (short-dash + long gap)
+            ':',  # Greenland & Norwegian Sea (dotted)
+            '--',  # Central Arctic (dashed)
+        ]
         color_reg = global_vars.colors_arctic_reg
         unit = global_vars.units_concentration
         unit = f'Carbon concentration \n ({unit})'
@@ -285,37 +297,40 @@ def seasonality_plot_thesis(reg_data):
             if na != 'Antarctica':
                 data = reg_data[na][yr]['var_seasonality']
                 title = ['Biomolecules', r'$\bf{(a)}$']
-                C_conc = [rm_nan(data['Biom']['PCHO_DCAA']),
-                          rm_nan(data['Biom']['PL'])]
+                # C_conc = [rm_nan(data['Biom']['PCHO_DCAA']),
+                #           rm_nan(data['Biom']['PL'])]
+                #
+                # plot_seasons_reg_only(axs[0], C_conc,na, color_reg[idx], title)
 
-                plot_seasons_reg_only(axs[0], C_conc,na, color_reg[idx], title)
+
+
+                C_conc = rm_nan(data['Biom']['PCHO_DCAA'])
+                title = ['PCHO$_{sw}$ + DCAA$_{sw}$', r'$\bf{(a)}$']
+                plot_seasons_reg_conc_ice(axs[0], C_conc,
+                                          na, color_reg[idx], [title, unit], [0, 9], linestyle[idx])
+
+                title = ['PL$_{sw}$', r'$\bf{(b)}$']
+                C_conc = rm_nan(data['Biom']['PL'])
+                plot_seasons_reg_conc_ice(axs[1], C_conc,
+                                          na, color_reg[idx], [title, unit], [0, 1.5], linestyle[idx])
 
                 C_conc = rm_nan(data['Other']['PhyDia'])
-                title = ['Phytoplankton', r'$\bf{(a)}$']
-                plot_seasons_reg_conc_ice(axs[1], C_conc,
-                                          na, color_reg[idx], [title, unit], [0, 40])
-
-                # C_conc = rm_nan(data['Biom']['PCHO_DCAA'])
-                # title = ['PCHO$_{sw}$ + DCAA$_{sw}$', r'$\bf{(a)}$']
-                # plot_seasons_reg_conc_ice(axs[0], C_conc,
-                #                           na, color_reg[idx], [title, unit], [0, 7])
-                #
-                # title = ['PL$_{sw}$', r'$\bf{(b)}$']
-                # C_conc = rm_nan(data['Biom']['PL'])
-                # plot_seasons_reg_conc_ice(axs[1], C_conc,
-                #                           na, color_reg[idx], [title, unit], [0, 1.5])
-
-                omf = rm_nan(data['OMF']['Total OMF'])
-                title_omf = ["Total OMF", r'$\bf{(c)}$']
-                plot_seasons_reg_conc_ice(axs[2], omf,
-                                          na, color_reg[idx], [title_omf, ' '], [0, 0.5],
+                title = ['Phytoplankton', r'$\bf{(c)}$']
+                plot_seasons_reg_conc_ice(axs[2], C_conc,
+                                          na, color_reg[idx], [title, unit], [0, 40], linestyle[idx],
                                           lower_axis=True)
 
-                sic = rm_nan(data['Other']['SIC'])
-                title = ["SIC", r'$\bf{(d)}$']
-                leg_list.append(plot_seasons_reg_conc_ice(axs[3], sic,
-                                          na, color_reg[idx], [title, '%'], [0, 100],
-                                                          lower_axis=True),)
+                omf = rm_nan(data['OMF']['Total OMF'])
+                title_omf = ["Total OMF", r'$\bf{(d)}$']
+                leg_list.append(plot_seasons_reg_conc_ice(axs[3], omf,
+                                          na, color_reg[idx], [title_omf, ' '], [0, 0.5], linestyle[idx],
+                                          lower_axis=True))
+
+                # sic = rm_nan(data['Other']['SIC'])
+                # title = ["SIC", r'$\bf{(d)}$']
+                # leg_list.append(plot_seasons_reg_conc_ice(axs[3], sic,
+                #                           na, color_reg[idx], [title, '%'], [0, 100],
+                #                                           lower_axis=True),)
 
         box = axs[0].get_position()
         axs[0].set_position([box.x0, box.y0 + box.height * 0.1,
