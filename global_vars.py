@@ -10,3 +10,4 @@ arctic_regions = True # comment if not wanted
 colors_arctic_reg = ['k', 'r', 'm', 'pink', 'lightgreen', 'darkblue', 'orange',
                  'brown', 'lightblue', 'y', 'gray']
 months = np.arange(0, 12)
+lat_arctic_lim = 66

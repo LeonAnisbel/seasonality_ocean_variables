@@ -6,6 +6,8 @@ import codecs
 import numpy as np
 import warnings
 
+from global_vars import lat_arctic_lim
+
 warnings.filterwarnings(
     "ignore",
     category=RuntimeWarning,
@@ -126,7 +128,7 @@ def regions_dict():
         file_name = 'reg_data_global_regions'
 
     if global_vars.arctic_regions:
-        conditions = [[[lat, 63, 90]],
+        conditions = [[[lat, global_vars.lat_arctic_lim, 90]],
                       # [[lat,76,82], [lon,-20,20]],
                       [[lat, 66, 82], [lon, 20, 60]],
                       [[lat, 66, 82], [lon, 60, 100]],
