@@ -241,7 +241,31 @@ def read_ocean_data_monthly(axs):
 
 
 
-
+def line_style_regions():
+    color_reg = ['k', 'r', 'm', 'pink',
+                 'lightgreen', 'darkblue', 'orange',
+                 'brown', 'lightblue', 'y', 'gray']
+    line_styles = [
+        (0, (1, 0)),  # solid
+        (0, (5, 2)),  # long dash
+        (0, (2, 2)),  # dotted
+        (0, (4, 2, 1, 2)),  # dash-dot
+        (0, (3, 1, 1, 1)),  # dash-dot-dot
+        (0, (8, 2, 2, 2)),  # long dash + dots
+        (0, (1, 1)),  # dense dots
+        (0, (6, 1, 1, 1)),  # long-short pattern
+        (0, (2, 3, 1, 3)),  # spaced dots
+        (0, (5, 1, 2, 1)),  # alternating dashes
+        (0, (7, 3, 2, 3)),  # long dash–dot pattern
+    ]
+    _, reg_dict_list, _ = regions_dict()
+    reg_style_dict = {}
+    for reg in list(reg_dict_list.keys()):
+        reg_style_dict[reg] = {}
+    for i, reg in enumerate(list(reg_style_dict.keys())):
+        reg_style_dict[reg]['color'] = color_reg[i]
+        reg_style_dict[reg]['linestyle'] = line_styles[i]
+    return reg_style_dict, color_reg, line_styles
 
 
 

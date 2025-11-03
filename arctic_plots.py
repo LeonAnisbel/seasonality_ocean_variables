@@ -32,20 +32,59 @@ def plot_monthly_series_pannel(axes, C_conc, C_omf, std_conc, std_omf, title, li
     ax3 = ax2.twinx()
     #     ax2.set_yscale('log')
     factor_pcho = 10
-    p2, = ax2.plot(t_ax, C_omf[0]*factor_pcho, label='PCHO$_{aer}$', linewidth=2, color='b')
-    fill_between_shade(ax2, t_ax, C_omf[0]*factor_pcho, std_omf[0]*factor_pcho, 'b')
-    p3, = ax.plot(t_ax, C_conc[0], label='PCHO$_{sw}$', linewidth=2, color='b')
-    fill_between_shade(ax, t_ax, C_conc[0], std_conc[0], 'b')
+    p2, = ax2.plot(t_ax, C_omf[0]*factor_pcho,
+                   label='PCHO$_{aer}$',
+                   linewidth=1.6,
+                   color='b',
+                   linestyle=(0, (3, 1, 1, 1, 1, 1)))
+    fill_between_shade(ax2, t_ax,
+                       C_omf[0]*factor_pcho,
+                       std_omf[0]*factor_pcho,
+                       'b')
+    p3, = ax.plot(t_ax, C_conc[0],
+                  label='PCHO$_{sw}$',
+                  linewidth=1.6,
+                  color='b',
+                  linestyle=(0, (3, 1, 1, 1, 1, 1)))
+    fill_between_shade(ax, t_ax,
+                       C_conc[0],
+                       std_conc[0],
+                       'b')
 
-    p21, = ax2.plot(t_ax, C_omf[1]*factor_pcho, label='DCAA$_{aer}$', linewidth=2, color='g')
-    fill_between_shade(ax2, t_ax, C_omf[1]*factor_pcho, std_omf[1]*factor_pcho, 'g')
-    p31, = ax.plot(t_ax, C_conc[1], label='DCAA$_{sw}$', linewidth=2, color='g')
-    fill_between_shade(ax, t_ax, C_conc[1], std_conc[1], 'g')
+    p21, = ax2.plot(t_ax, C_omf[1]*factor_pcho,
+                    label='DCAA$_{aer}$',
+                    linewidth=1.6,
+                    color='g',
+                    linestyle=(0, (1, 1)))
+    fill_between_shade(ax2, t_ax,
+                       C_omf[1]*factor_pcho,
+                       std_omf[1]*factor_pcho,
+                       'g')
+    p31, = ax.plot(t_ax, C_conc[1],
+                   label='DCAA$_{sw}$',
+                   linewidth=1.6,
+                   color='g',
+                   linestyle=(0, (1, 1)))
+    fill_between_shade(ax, t_ax,
+                       C_conc[1],
+                       std_conc[1],
+                       'g')
 
     factor_pl = 1
-    p22, = ax3.plot(t_ax, C_omf[2]*factor_pl, label='PL$_{aer}$', linewidth=2, color='darkred')
-    fill_between_shade(ax3, t_ax, C_omf[2]*factor_pl, std_omf[2]*factor_pl, 'darkred')
-    p32, = ax.plot(t_ax, C_conc[2], label='PL$_{sw}$', linewidth=2, color='darkred')
+    p22, = ax3.plot(t_ax, C_omf[2]*factor_pl,
+                    label='PL$_{aer}$',
+                    linewidth=1.6,
+                    color='darkred',
+                    linestyle='-.')
+    fill_between_shade(ax3, t_ax,
+                       C_omf[2]*factor_pl,
+                       std_omf[2]*factor_pl,
+                       'darkred')
+    p32, = ax.plot(t_ax, C_conc[2],
+                   label='PL$_{sw}$',
+                   linewidth=1.6,
+                   color='darkred',
+                   linestyle='-.')
     fill_between_shade(ax, t_ax, C_conc[2], std_conc[2], 'darkred')
 
     ax.set_ylabel(f"Carbon concentration \n ({global_vars.units_concentration})", fontsize=f)
@@ -80,6 +119,10 @@ def plot_seasons_reg(ax, C_conc, C_omf, na, c, lw, ylabels, ylims, reg_gray_line
         line_sty = '--'
     else:
         line_sty = '-'
+
+    reg_color_style, _, _ = utils.line_style_regions()
+    line_sty = reg_color_style[na]['linestyle']
+    c = reg_color_style[na]['color']
     ax, ax2 = ax[0], ax[1]
 
     #   Plot gray lines only
