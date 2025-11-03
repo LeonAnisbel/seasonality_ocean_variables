@@ -112,6 +112,17 @@ def regions_dict():
         plots.plot_map_box_station(0, conditions, reg_data, create_fig=True)
         file_name = 'reg_data_stat_bx_test'
 
+    elif global_vars.seasonality_stations_MH_AI:
+        conditions = [[[lat, -38, -37], [lon, 77, 78]],
+                      [[lat, 53,53.5 ], [lon, -10, -9.5]],
+                      ]
+        reg_data = {'AI': [],
+                    'MH': [],
+                          }
+
+        plots.plot_map_box_station(0, conditions, reg_data, create_fig=True)
+        file_name = 'reg_data_stat_bx_test_MH_AI'
+
     else:
         conditions = [[[lat, 63, 90]],
                       [[lat, -90, -63]],
@@ -121,9 +132,9 @@ def regions_dict():
 
         reg_data = {'Arctic Ocean': [],
                           'Southern Ocean': [],
-                          'Northern Subtropics': [],
-                          'Southern Subtropics': [],
-                          'Equator': [],
+                          'Northern subtropics & extratropics': [],
+                          'Southern subtropics & extratropics': [],
+                          'Tropics': [],
                           }
         file_name = 'reg_data_global_regions'
 
@@ -161,8 +172,8 @@ def regions_dict():
 def get_monthly_group_mean(data, var_name):
     """ This function calculates the monthly mean values and standard deviation (used for observational data)  """
     times = pd.to_datetime(data['Date/Time'], dayfirst=False)
-    data_month = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].mean()
-    data_month_std = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].std()
+    data_month = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].mean(skipna=True)
+    data_month_std = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].std(skipna=True)
     months = [i[1] for i in data_month.index]
     return data_month, data_month_std, months
 

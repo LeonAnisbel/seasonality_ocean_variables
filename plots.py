@@ -36,7 +36,7 @@ def plot_map_box_station(axs, conditions, reg_data_globe, create_fig=False):
                                              label=n,
                                              transform=ccrs.PlateCarree()))
 
-    plt.legend()
+    plt.legend(fontsize=16)
     if create_fig:
         plt.tight_layout()
         plt.savefig('Map_boxes.png', dpi=300)
@@ -112,6 +112,7 @@ def plot_monthly_series_pannel(axes, C_omf, std_omf, title, limits, var_id, pos,
 
     if lower_axis:
         ax2.set_xlabel("Months", fontsize=font)
+    else: ax2.set_xlabel(" ", fontsize=font)
     # ax2.legend(loc='upper left', fontsize=14)
 
     def format_func(value, tick_number):
@@ -143,15 +144,18 @@ def plot_seasonality_regions(data):
     """ This function creates the figure, define axes and other parameters relevant for plotting the
       seasonality of marine biomolecules and OMF for global oceanic regions"""
 
-    fig, axs = plt.subplots(5, 2, figsize=(18, 24))  # 15,8
+    fig, axs = plt.subplots(5, 2, figsize=(20, 24))  # 15,8
     ax = axs.flatten()
+    for a in ax:
+        a.grid(linestyle='--',
+                linewidth=0.4)
     ax1 = [ax[0], ax[2], ax[4], ax[6], ax[8]]
     ax2 = [ax[1], ax[3], ax[5], ax[7], ax[9]]
     fig.subplots_adjust(wspace=0.5)
     fig.subplots_adjust(hspace=0.3)
 
     c = len(ax1)*['k']
-    f = 20
+    f = 22
     for i, region in enumerate(list(data.keys())):
         C_omf, C_omf_std = get_vals_std(data, region, 'OMF')
         C_biom, C_biom_std = get_vals_std(data, region, 'Biom')
@@ -188,12 +192,65 @@ def plot_seasonality_regions(data):
                 bbox_inches="tight")
 
 
+def plot_seasonality_regions_AI_MH(data):
+    """ This function creates the figure, define axes and other parameters relevant for plotting the
+      seasonality of marine biomolecules and OMF for AI and MH stations"""
+
+    fig, axs = plt.subplots(2, 2, figsize=(18, 12))  # 15,8
+    ax = axs.flatten()
+    for a in ax:
+        a.grid(linestyle='--',
+                linewidth=0.4)
+    ax1 = [ax[0], ax[2]]
+    ax2 = [ax[1], ax[3]]
+    fig.subplots_adjust(wspace=0.5)
+    fig.subplots_adjust(hspace=0.3)
+
+    c = len(ax1)*['k']
+    f = 22
+    for i, region in enumerate(list(data.keys())):
+        C_omf, C_omf_std = get_vals_std(data, region, 'OMF')
+        C_biom, C_biom_std = get_vals_std(data, region, 'Biom')
+
+
+        limits_omf = [[0.25, 0.25], [0.25, 0.25]]
+        limits_biom = [[8, 1.5], [8, 1.5]]
+
+
+        if i == 4: laxis = True
+        else: laxis = False
+        if region == 'AI':
+            title = 'OMF \n \n \n \n\n' + region
+        else: title = region
+
+        p2omf, p21omf, p22omf = plot_monthly_series_pannel(ax2[i], C_omf, C_omf_std,
+                                         title, limits_omf[i], 'OMF', 0.27, c[i], [], f, lower_axis=laxis)
+
+        if region == 'AI':
+            title = 'Ocean biomolecule concentration \n (mmol C m$^{-3}$) \n \n \n \n' + region
+        else: title = region
+        p2oc, p21oc, p22oc = plot_monthly_series_pannel(ax1[i], C_biom, C_biom_std,
+                                         title, limits_biom[i], 'Biom', 0.27, c[i], [],f, lower_axis=laxis)
+
+        if i == 0:    fig.legend(handles=[p2oc, p21oc, p22oc], ncol=3,
+               bbox_to_anchor=(0.1, 0.9), loc='lower left', fontsize=f)
+        if i == 0:    fig.legend(handles=[p2omf, p21omf, p22omf], ncol=3,
+               bbox_to_anchor=(0.92, 0.97), fontsize=f)
+
+
+    # fig.tight_layout()
+    plt.savefig(f'Multiannual_monthly_subregions_AI_MH.png',
+                dpi=300,
+                bbox_inches="tight")
+
+
+
 def plot_seasonality_regions_with_stations(data):
     """ This function creates the figure, define axes and other parameters relevant for plotting the
       seasonality of marine biomolecules and observational data for regions defined around the station
       locations """
-    fig, axs = plt.subplots(2, 3,
-                            figsize=(18, 8),
+    fig, axs = plt.subplots(3, 2,
+                            figsize=(14, 12),
                             constrained_layout=True)  # 15,8
     fig.subplots_adjust(hspace=0.4)
 
@@ -203,7 +260,7 @@ def plot_seasonality_regions_with_stations(data):
 
     order_keys = ['NAO', 'WAP', 'SATL, CVAO', 'PUR', 'NWAO, SB', 'AS, WMED'] #'AI'
     print(data.keys())
-    f = 18
+    f = 22
 
     for i, region in enumerate(order_keys):
         C_biom, C_biom_std = get_vals_std(data, region, 'Biom')
@@ -211,11 +268,13 @@ def plot_seasonality_regions_with_stations(data):
         limits_biom = [[7, 1.5],[6.5, 1.], [9, 0.3],[9, 0.7], [8, 1.], [6, 0.4]]
 
         print(dict_stat_groups)
-        if i == 4 or i == 3 or i == 5: laxis = True
+        if i == 4 or i == 5: laxis = True
         else: laxis = False
 
         title = region
         # if region == 'AI': region = 'AS, WMED'
+        ax[i].grid(linestyle='--',
+                linewidth=0.4)
         p2oc, p21oc, p22oc = plot_monthly_series_pannel(ax[i],
                                                         C_biom,
                                                         C_biom_std,
@@ -231,13 +290,13 @@ def plot_seasonality_regions_with_stations(data):
 
         if i == 0:    fig.legend(handles=[p2oc, p21oc, p22oc],
                                  ncol=3,
-                                 bbox_to_anchor=(0.35, 1.0),
+                                 bbox_to_anchor=(0.28, 1.0),
                                  loc='lower left',
                                  fontsize=f)
 
 
     proj = ccrs.PlateCarree()
-    ax1 = fig.add_axes([0.9, 0.3, 0.4, 0.45],
+    ax1 = fig.add_axes([0.95, 0.3, 0.4, 0.4],
                        projection=proj)
     conditions, reg_data_globe, _ = utils.regions_dict()
     plot_map_box_station(ax1,
@@ -245,7 +304,7 @@ def plot_seasonality_regions_with_stations(data):
                          reg_data_globe,
                          create_fig=False)
 
-    fig.text(0.33, 1.15,
+    fig.text(0.27, 1.09,
               "Ocean biomolecule concentration (mmol C m$^{-3}$)",
               size=f,
               weight='bold',)

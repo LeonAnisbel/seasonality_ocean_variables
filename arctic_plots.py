@@ -4,21 +4,27 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib as mpl
 import matplotlib.path as mpath
+import pandas as pd
 from matplotlib import ticker as mticker
 from cartopy.mpl.gridliner import LATITUDE_FORMATTER
 from utils_plots import *
 import global_vars
 from utils import rm_nan
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+import seaborn as sns
 
 
 def fill_between_shade(ax, t_ax, data, fill_val, c):
+    """ This function is used to plot the standard deviation as shaded area
+    :returns None"""
     ax.fill_between(t_ax, data - fill_val, data + fill_val,
                     alpha=0.2, color=c)
 
 f = 14
 t_ax = global_vars.months
 def plot_monthly_series_pannel(axes, C_conc, C_omf, std_conc, std_omf, title, limits, pos, left_axis=False):
+    """ This function plots the ocean carbon concentration and OMF for each biomolecule averaged over the Arctic
+    :returns subplot instances to customize legend later on"""
     ax = axes[0]
     ax2 = axes[1]
     ax3 = ax2.twinx()
@@ -65,6 +71,9 @@ def plot_monthly_series_pannel(axes, C_conc, C_omf, std_conc, std_omf, title, li
 
 
 def plot_seasons_reg(ax, C_conc, C_omf, na, c, lw, ylabels, ylims, reg_gray_line=False):
+    """ This function plots the ocean carbon concentration and OMF for each group averaged over the
+    Arctic and every Arctic subregion
+    :returns None"""
     if na != 'Arctic':
         line_sty = '--'
     else:
@@ -161,6 +170,8 @@ def plot_seasons_reg_only(ax, C_conc, na, c, title):
     return p2
 
 def seasonality_conc_omf_arctic_and_reg(reg_data):
+    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None"""
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))  # 15,8
     ax = axs.flatten()
 
@@ -252,6 +263,7 @@ def seasonality_conc_omf_arctic_and_reg(reg_data):
         axs.set_title(titles_1[i], loc='right', fontsize=f)
         axs.xaxis.set_tick_params(labelsize=f)
         axs.grid(linestyle='--', linewidth=0.4)
+        axs.xaxis.set_minor_locator(AutoMinorLocator(2))  # 4 minor intervals → 3 minor ticks
 
         axs.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
 
@@ -296,6 +308,7 @@ def seasonality_plot_thesis(reg_data):
         for idx, na in enumerate(reg_data.keys()):
             if na != 'Antarctica':
                 data = reg_data[na][yr]['var_seasonality']
+                data_std = reg_data[na][yr]['var_season_std']
                 title = ['Biomolecules', r'$\bf{(a)}$']
                 # C_conc = [rm_nan(data['Biom']['PCHO_DCAA']),
                 #           rm_nan(data['Biom']['PL'])]
@@ -308,23 +321,37 @@ def seasonality_plot_thesis(reg_data):
                 title = ['PCHO$_{sw}$ + DCAA$_{sw}$', r'$\bf{(a)}$']
                 plot_seasons_reg_conc_ice(axs[0], C_conc,
                                           na, color_reg[idx], [title, unit], [0, 9], linestyle[idx])
+                if na == 'Arctic':
+                    C_conc_std = data_std['Biom']['PCHO_DCAA']
+                    fill_between_shade(axs[0], t_ax, C_conc, C_conc_std, 'gray')
 
                 title = ['PL$_{sw}$', r'$\bf{(b)}$']
                 C_conc = rm_nan(data['Biom']['PL'])
                 plot_seasons_reg_conc_ice(axs[1], C_conc,
                                           na, color_reg[idx], [title, unit], [0, 1.5], linestyle[idx])
+                if na == 'Arctic':
+                    C_conc_std = data_std['Biom']['PL']
+                    fill_between_shade(axs[1], t_ax, C_conc, C_conc_std, 'gray')
 
                 C_conc = rm_nan(data['Other']['PhyDia'])
                 title = ['Phytoplankton', r'$\bf{(c)}$']
                 plot_seasons_reg_conc_ice(axs[2], C_conc,
                                           na, color_reg[idx], [title, unit], [0, 40], linestyle[idx],
                                           lower_axis=True)
+                if na == 'Arctic':
+                    C_conc_std = data_std['Other']['PhyDia']
+                    fill_between_shade(axs[2], t_ax, C_conc, C_conc_std, 'gray')
 
                 omf = rm_nan(data['OMF']['Total OMF'])
                 title_omf = ["Total OMF", r'$\bf{(d)}$']
                 leg_list.append(plot_seasons_reg_conc_ice(axs[3], omf,
                                           na, color_reg[idx], [title_omf, ' '], [0, 0.5], linestyle[idx],
                                           lower_axis=True))
+                if na == 'Arctic':
+                    C_conc_std = data_std['OMF']['Total OMF']
+                    fill_between_shade(axs[3], t_ax, omf, C_conc_std, 'gray')
+
+
 
                 # sic = rm_nan(data['Other']['SIC'])
                 # title = ["SIC", r'$\bf{(d)}$']
