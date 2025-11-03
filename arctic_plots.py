@@ -7,6 +7,8 @@ import matplotlib.path as mpath
 import pandas as pd
 from matplotlib import ticker as mticker
 from cartopy.mpl.gridliner import LATITUDE_FORMATTER
+from matplotlib.ticker import AutoMinorLocator
+import utils
 from utils_plots import *
 import global_vars
 from utils import rm_nan
@@ -277,6 +279,223 @@ def seasonality_conc_omf_arctic_and_reg(reg_data):
                fontsize=f)
     fig.tight_layout()
     plt.savefig(f'Multiannual monthly trends poles and subregions{yr}_updated.png', dpi=300, bbox_inches="tight")
+
+
+def yearly_seasonality_arctic_and_reg(reg_data, variable, mv):
+    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None"""
+    fig, axs = plt.subplots(4, 3, figsize=(14, 12))  # 15,8
+    ax = axs.flatten()
+    fig.subplots_adjust(right=0.75)
+    yr = 'months_30_yr'
+
+
+    cmap = plt.get_cmap('turbo')  # choose any cmap
+    colors = [tuple(c) for c in cmap(np.linspace(0.05, 0.95, 30))]  # avoid extreme ends
+    for idx, na in enumerate(reg_data.keys()):
+        print(na)
+        ax[idx].set_title(na,
+                          loc='center',
+                          fontsize=f,
+                          weight='bold')
+        data = reg_data[na][yr]['var_seasonality']
+        data_dim = reg_data[na][yr]['var_data_region']
+        C_conc = data['Biom'][variable]
+        C_conc_dim = data_dim['Biom'][variable]
+        C_conc = rm_nan(C_conc)
+
+        year_list = C_conc_dim.time.dt.year.values
+        month_list = C_conc_dim.time.dt.month.values
+        C_conc_pd = pd.DataFrame({'values':C_conc, 'years': year_list, 'months': month_list})
+        C_conc_pd['years'] = C_conc_pd['years'].astype(str)
+
+        p1 = sns.lineplot(data=C_conc_pd,
+                     x = 'months',
+                     y = 'values',
+                     hue = 'years',
+                    palette = colors,
+                    linestyle='dashed',
+                    ax=ax[idx])
+        ax[idx].set_ylabel(f" Carbon concentration \n ({global_vars.units_concentration})", fontsize=f)
+        ax[idx].set_ylim(0, mv)
+        ax[idx].set_xlim(1, 12)
+
+        ax[idx].yaxis.set_tick_params(labelsize=f)
+        ax[idx].xaxis.set_tick_params(labelsize=f)
+
+        ax[idx].set_xlabel("Months", fontsize=f)
+        ax[idx].get_legend().remove()
+
+    box = ax[0].get_position()
+    ax[0].set_position([box.x0, box.y0 + box.height * 0.1,
+                        box.width, box.height * 0.9])
+    handles, labels = ax[0].get_legend_handles_labels()
+    ax[-1].axis('off')
+
+    fig.legend(handles=handles,
+               labels=labels,
+               ncol=8,
+               bbox_to_anchor=(0.5, 0.),
+               loc='upper center',
+               fontsize=f)
+    fig.tight_layout()
+    plt.savefig(f'Yearly_monthly_poles_subregions_{variable}_Concentration.png',
+                dpi=300,
+                bbox_inches="tight")
+    plt.close()
+
+
+def yearly_seasonality_arctic_and_reg_heatmap(reg_data, group, variable, mv):
+    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None"""
+    fig, axs = plt.subplots(3, 4,
+                            figsize=(20, 18))  # 15,8
+    fig.suptitle(f'Arctic and Arctic subregions seasonality for {variable} ocean concentration \n',
+                 fontsize=f+2,
+                 weight='bold')
+    ax = axs.flatten()
+    fig.subplots_adjust(right=0.75)
+    yr = 'months_30_yr'
+
+    for idx, na in enumerate(reg_data.keys()):
+        print(na)
+        ax[idx].set_title(na,
+                          loc='center',
+                          fontsize=f,
+                          weight='bold')
+        data = reg_data[na][yr]['var_seasonality']
+        data_dim = reg_data[na][yr]['var_data_region']
+        C_conc = data[group][variable]
+        C_conc_dim = data_dim[group][variable]
+        C_conc = rm_nan(C_conc)
+        C_min = min(C_conc)
+        C_max = max(C_conc)
+        C_conc_norm = [(i - C_min) / (C_max - C_min) for i in C_conc]
+
+        year_list = C_conc_dim.time.dt.year.values
+        month_list = C_conc_dim.time.dt.month.values
+        C_conc_pd = pd.DataFrame({'values':C_conc_norm, 'years': year_list, 'months': month_list})
+        C_conc_pd['years'] = C_conc_pd['years'].astype(str)
+        C_conc_pd_sel = C_conc_pd[C_conc_pd['months']>3]
+        C_conc_pd_sel2 = C_conc_pd_sel[C_conc_pd_sel['months']<12]
+
+        C_conc_pd_piv = C_conc_pd_sel2.pivot(index='years',
+                                        columns='months',
+                                        values='values')
+        p1 = sns.heatmap(C_conc_pd_piv,
+                    annot=True,
+                    cmap = 'Reds',
+                    fmt='.1f',
+                    ax = ax[idx],
+                    linewidths = .5,)
+        ax[idx].set(xlabel='Months', ylabel='', )
+        ax[idx].set_xlabel('Months', fontsize=f)
+        p1.figure.axes[-1].tick_params(labelsize=f)
+        ax[idx].tick_params(labelsize=f)
+        p1.invert_yaxis()
+
+        # ax[idx].axis.tick_top()
+
+    ax[-1].axis('off')
+
+    fig.tight_layout()
+    plt.savefig(f'Yearly_monthly_poles_subregions_{variable}_Concentration_heatmaps.png',
+                dpi=300,
+                bbox_inches="tight")
+    plt.close()
+
+
+def yearly_seasonality_specific_reg_heatmap(reg_data):
+    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None"""
+    fig, axs = plt.subplots(2, 3,
+                            figsize=(12, 12),
+                            gridspec_kw={'width_ratios': [1,1,1], 'wspace':0.2},
+                            constrained_layout=True,
+                            )  # 15,8
+    # fig.suptitle(f'Normalized biomolecule ocean concentration \n',
+    #              fontsize=f+2,
+    #              weight='bold')
+    ax = axs.flatten()
+    # fig.subplots_adjust(right=0.75)
+    yr = 'months_30_yr'
+    f = 14
+
+    regions = ['Kara Sea', 'Laptev Sea', 'Beaufort Sea', 'Kara Sea','Laptev Sea', 'Beaufort Sea']
+    variables = ['PCHO', 'PCHO', 'PCHO', 'PL', 'PL', 'PL']
+    label = [r'$\bf{(a)}$', r'$\bf{(b)}$', r'$\bf{(c)}$', r'$\bf{(d)}$', r'$\bf{(e)}$', r'$\bf{(f)}$']
+
+    for idx, na in enumerate(regions):
+        print(na)
+        if variables[idx] == 'PCHO':
+            var = 'PCHO$_{sw}$ '
+        if variables[idx] == 'PL':
+            var = 'PL$_{sw}$ '
+        ax[idx].set_title(var + na,
+                          loc='right',
+                          fontsize=f)
+        ax[idx].set_title(label[idx],
+                          loc='left',
+                          fontsize=f,
+                          weight='bold')
+        data = reg_data[na][yr]['var_seasonality']
+        data_dim = reg_data[na][yr]['var_data_region']
+        C_conc = data['Biom'][variables[idx]]
+        C_conc_dim = data_dim['Biom'][variables[idx]]
+        C_conc = rm_nan(C_conc)
+        C_min = min(C_conc)
+        C_max = max(C_conc)
+        C_conc_norm = [round((i - C_min) / (C_max - C_min), 1) for i in C_conc]
+        # C_conc_norm = [i if i>0.1 else int(i) for i in C_conc_norm_0]
+
+        year_list = C_conc_dim.time.dt.year.values
+        month_list = C_conc_dim.time.dt.month.values
+        C_conc_pd = pd.DataFrame({'normval':C_conc_norm, 'years': year_list, 'months': month_list})
+        C_conc_pd['years'] = C_conc_pd['years'].astype(str)
+        C_conc_pd_sel = C_conc_pd[C_conc_pd['months']>4]
+        C_conc_pd_sel2 = C_conc_pd_sel[C_conc_pd_sel['months']<10]
+
+        C_conc_pd_piv = C_conc_pd_sel2.pivot(index='years',
+                                        columns='months',
+                                        values='normval')
+        if regions[idx] == 'Beaufort Sea':
+            cb= True
+        else:
+            cb = False
+
+        p1 = sns.heatmap(C_conc_pd_piv,
+                    annot=True,
+                    cmap = 'Reds',
+                    # fmt='.1f',
+                    ax = ax[idx],
+                    # linewidths = .5,
+                    cbar = cb,
+                    yticklabels = 2
+                         )
+
+        ax[idx].set_ylabel('')
+        ax[idx].set_yticklabels(
+            ax[idx].get_yticklabels(),
+            rotation=0,  # or 45, or 90, depending on your preference
+            # ha='right',  # horizontal alignment (can also be 'center' or 'left')
+            # va='center'
+        )        # p1.figure.axes[-1].tick_params(labelsize=f)
+        ax[idx].tick_params(labelsize=f)
+        ax[idx].invert_yaxis()
+
+        if variables[idx] == 'PCHO':
+            ax[idx].set_xlabel(' ', fontsize=f)
+        else:
+            ax[idx].set_xlabel('Months', fontsize=f)
+        if regions[idx] != 'Kara Sea':
+            ax[idx].tick_params(axis='y',labelleft=False, left=False)
+
+
+    # fig.tight_layout()
+    plt.savefig(f'Yearly_monthly_poles_specific_subregions_normalized_Concentration_heatmaps.png',
+                dpi=300,)
+                # bbox_inches="tight")
+    plt.close()
 
 
 

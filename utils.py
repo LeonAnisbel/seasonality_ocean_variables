@@ -56,7 +56,10 @@ def find_region(variable, cond, na, yr_cond):
         v = v.where((v.time.dt.year > yr_cond[0]) &
                     (v.time.dt.year < yr_cond[1]), drop=True)
 
-        v_m = v.groupby(v.time.dt.month).mean('time')
+        if global_vars.yearly_months and global_vars.arctic_regions:
+            v_m = v
+        else:
+            v_m = v.groupby(v.time.dt.month).mean('time', skipna=True)
         v_m_lalo_std, v_m_lalo = weighted_mean(v_m)
 
         # print(na, 'mean value', v_m_lalo, '+-', v_m_lalo_std, '\n \n')
@@ -165,7 +168,10 @@ def regions_dict():
                     'Greenland & Norwegian Sea': [],
                     'Central Arctic': [],
                     }
-        file_name = 'reg_data_arctic_regions'
+        if global_vars.yearly_months:
+            file_name = 'reg_data_arctic_regions_yearly_months'
+        else:
+            file_name = 'reg_data_arctic_regions'
     return conditions, reg_data, file_name
 
 
