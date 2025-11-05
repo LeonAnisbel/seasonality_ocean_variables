@@ -6,8 +6,6 @@ import codecs
 import numpy as np
 import warnings
 
-from global_vars import lat_arctic_lim
-
 warnings.filterwarnings(
     "ignore",
     category=RuntimeWarning,
@@ -18,8 +16,12 @@ def rm_nan(data):
     return [0 if np.isnan(i) else i for i in data]
 
 def get_var_reg(v, cond):
-    """ This function is used to select a region in variable data "v" under withing the latitude and
-    longitude limits define in "cond" """
+    """
+    This function is used to select and filter certain regions according to the conditions variable (cond).
+    :var v: variable dataset
+    :var cond: dictionary containing the regions lat and lon limits
+    :return: variable dataset with the data filtered to meet each condition
+    """
     if len(cond) <= 1:
         v = v.where((cond[0][0] > cond[0][1]) &
                     (cond[0][0] < cond[0][2])
@@ -34,6 +36,11 @@ def get_var_reg(v, cond):
 
 
 def weighted_mean(data):
+    """
+    Computes weighted mean of data for FESOM-REcoM data
+    :var data: dataset-like object
+    :return: dataset as averaged weighted mean
+    """
     lat_rad = np.deg2rad(data.lat)
     weights = np.cos(lat_rad)
     weights /= weights.sum()
@@ -44,9 +51,16 @@ def weighted_mean(data):
     return weighted_data_std, weighted_data_mean
 
 def find_region(variable, cond, na, yr_cond):
-    """ This function calculates the multiannual monthly mean values of "months"
+    """
+    This function calculates the multiannual monthly mean values
     over the period "yr_cond" defining the years to consider in the average for the regions
-    definition of latitude and longitude limits in "cond" """
+    definition of latitude and longitude limits in "cond"
+    :var variable: list of variable dataset
+    :var cond: list containing the regions lat and lon limits
+    :var yr_cond: list of min and max years to filter the data
+    :return : datasets of monthly mean values, multiannual monthly std, original values as a list of all variables
+    in variable
+    """
     v_mo_var = []
     v_std_var = []
     v_data = []
@@ -62,8 +76,6 @@ def find_region(variable, cond, na, yr_cond):
             v_m = v.groupby(v.time.dt.month).mean('time', skipna=True)
         v_m_lalo_std, v_m_lalo = weighted_mean(v_m)
 
-        # print(na, 'mean value', v_m_lalo, '+-', v_m_lalo_std, '\n \n')
-
         v_mo_var.append(v_m_lalo)
         v_std_var.append(v_m_lalo_std)
         v_data.append(v_m)
@@ -72,21 +84,31 @@ def find_region(variable, cond, na, yr_cond):
 
 
 def var_alloc_val(data, mo_yr_id, var_type, v_id, var_mo_season):
-    """ Allocates variable into the dictionary """
+    """
+    Allocates variable into the dictionary
+    :return : None
+    """
     for v, va in enumerate(data[mo_yr_id][var_type][v_id].keys()):
         data[mo_yr_id][var_type][v_id][va] = var_mo_season[v]
 
 
 
 def read_files_data(path_dir):
-    """ Read model data netcdf files """
+    """
+    Read model data netcdf files with dask
+    :param path_dir: directory path
+    :return : dataset
+    """
     data = xr.open_mfdataset(path_dir,
                              concat_dim='time',
                              combine='nested')
     return data
 
 def regions_dict():
-    """ This function creates the dictionaries with the region limits  """
+    """
+    This function creates the dictionaries with the region limits according to global_vars.py conditions
+    :return: lat and lon limits as a list, a dictionary with region names as keys and file name identifier
+    """
     c = read_files_data(global_vars.path_omf + "oceanfilms_omf_*")
 
     lat = c.lat
@@ -176,16 +198,24 @@ def regions_dict():
 
 
 def get_monthly_group_mean(data, var_name):
-    """ This function calculates the monthly mean values and standard deviation (used for observational data)  """
+    """
+    This function calculates the monthly mean values and standard deviation (used for observational data)
+    :var data: dataset
+    :param var_name: variable name
+    :return : dataset with monthly mean values, standard deviation and list of months
+    """
     times = pd.to_datetime(data['Date/Time'], dayfirst=False)
     data_month = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].mean(skipna=True)
     data_month_std = data.groupby([times.dt.year, times.dt.month], dropna=True)[var_name].std(skipna=True)
     months = [i[1] for i in data_month.index]
     return data_month, data_month_std, months
 
-def read_ocean_data_monthly(axs):
-    """ This function reads the seawater samples data, computes the monthly averages,
-     allocate them into a dictionary grouped by the box regions defined in global_vars.seasonality_stations  """
+def read_ocean_data_monthly():
+    """
+    This function reads the seawater samples data, computes the monthly averages,
+    allocate them into a dictionary grouped by the box regions defined in global_vars.seasonality_stations
+    :return: dictionary with all that information
+    """
     file_water = "../../../SEAWATER_data.csv"
     doc = codecs.open(file_water, 'r', 'UTF-8')  # open for reading with "universal" type set 'rU'
     data_water = pd.read_csv(doc, sep=',')
@@ -242,6 +272,11 @@ def read_ocean_data_monthly(axs):
 
 
 def line_style_regions():
+    """
+    This function defines the colors and line styles per region to use in seasonality plots
+    :return: dictionary with regions names as keys containing colors and line styles and lists with colors and
+    line styles
+    """
     color_reg = ['k', 'r', 'm', 'pink',
                  'lightgreen', 'darkblue', 'orange',
                  'brown', 'lightblue', 'y', 'gray']

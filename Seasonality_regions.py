@@ -1,47 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# <h1><center> Macromolecular Surface concentration </center></h1>
-# 
-# <h4><center> Author: Anisbel León Marcos${^1}$ </center></h4>
-# <h6><center> ${^1}$Institute for Tropospheric Research (TROPOS)
-#  ${^1}$leon@tropos.de  
-# </center></h6>
-# 
-# <br/>
-
-# ### Models :
-# 
-# #### - Finite-Volume sea-ice ocean model  <a href="https://fesom.de/models/fesom20/">(FESOM2) </a>
-# > ##### Unstructured mesh, potimized for the Arctic
-# 
-# #### - Regulated Ecosystem Model  <a href="https://ui.adsabs.harvard.edu/abs/2018PrOce.168...65S/abstract">(FESOM-REcoM2) </a>
-# > ##### Include two phytoplankton classes and coupled with FESOM2
-# 
-# 
-# ### Equations: 
-# > #### Adapted from <a href="https://doi.org/10.5194/gmd-16-4883-2023">(Gürses et al. 2023) </a>
-# 
-# <br/>
 
 # ##### Import packges
-
-# In[1]:
-
-
-import numpy as np
 import global_vars
 import os
 import pickle
-import plots
 import utils
 
-
-try:
-    os.mkdir('plots')
-except OSError:
-    pass
-
+#read data
 C_ice =  utils.read_files_data(global_vars.data_dir + 'ice_var*')['sic']
 C_ice_msk = utils.read_files_data(global_vars.data_dir + 'mask_ice*')['sic']
 C_pl = utils.read_files_data(global_vars.data_dir + 'PL_var_*')['PL'] * C_ice_msk
@@ -69,6 +36,8 @@ var_omf = [C_omf_tot,
            ]
 list_vars = [var_ocean,
             var_omf]
+
+# If arctic_regions apply sea ice mask
 if global_vars.arctic_regions:
     data_dir_ocean = global_vars.path_ocean
     C_temp = utils.read_files_data(data_dir_ocean + "temperature/sst*.nc")['sst'] * C_ice_msk
@@ -77,20 +46,17 @@ if global_vars.arctic_regions:
     C_phyC = utils.read_files_data(data_dir_ocean + "PhyC*")['VAR'] * C_ice_msk
     C_diaC = utils.read_files_data(data_dir_ocean + "DiaC*")['VAR'] * C_ice_msk
 
-    bx_size = abs(C_ice.lat.values[1] - C_ice.lat.values[0])
-    grid_bx_area = (bx_size * 110.574) * (
-                bx_size * 111.320 * np.cos(np.deg2rad(C_ice.lat)))  # from % sea ice of grid to km2
-    C_ice_area_px = C_ice * grid_bx_area
     C_ice = C_ice * 100
 
     var_other = [C_phyC,
                  C_diaC,
                  C_phyC + C_diaC,
                  C_ice,
-                 C_temp,
-                 C_ice_area_px]
+                 C_temp]
     list_vars.append(var_other)
 
+# Create dictionaries grouping variables into different groups (e.g. Biom for biomolecules, OMF for organic mass
+# fraction and Others for ocean parameters and phytoplankton groups)
 for na in reg_data_globe.keys():
     reg_data_globe[na]={'months_30_yr':[]}
     for i,mo in enumerate(reg_data_globe[na].keys()):
@@ -119,8 +85,7 @@ for na in reg_data_globe.keys():
                                                     'Dia': [],
                                                     'PhyDia': [],
                                                     'SIC': [],
-                                                    'SST': [],
-                                                    'ICE_area_px': []}
+                                                    'SST': []}
 
 
 years_set = [1989,2020]
@@ -145,18 +110,23 @@ for i_id, var in enumerate(list_vars):
     for i,na in enumerate(reg_data_globe.keys()):   
         print(na)
         for y,yr in enumerate(list(reg_data_globe[na].keys())):
+            # select data per regions and return multiannual monthly means and std
             var_mo_season, var_season_std, var_data_reg = utils.find_region(var,
                                                          conditions[i],
                                                          na,
                                                          years_set)
+            # save data into a dictionary
             utils.var_alloc_val(reg_data_globe[na], yr, 'var_seasonality',v_id, var_mo_season)
             utils.var_alloc_val(reg_data_globe[na], yr, 'var_season_std',v_id, var_season_std)
 
             if global_vars.arctic_regions:
                 utils.var_alloc_val(reg_data_globe[na], yr, 'var_data_region', v_id, var_data_reg)
 
-
-with open(file_name+'.pkl', 'wb') as handle:
+try:
+    os.makedirs(global_vars.pkl)
+except OSError:
+    pass
+with open(f'{global_vars.pkl}/{file_name}.pkl', 'wb') as handle:
     pickle.dump(reg_data_globe, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 

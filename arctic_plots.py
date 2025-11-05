@@ -17,16 +17,22 @@ import seaborn as sns
 
 
 def fill_between_shade(ax, t_ax, data, fill_val, c):
-    """ This function is used to plot the standard deviation as shaded area
-    :returns None"""
-    ax.fill_between(t_ax, data - fill_val, data + fill_val,
+    """
+    This function is used to plot the standard deviation as shaded area
+    :returns None
+    """
+    ax.fill_between(t_ax,
+                    data - fill_val,
+                    data + fill_val,
                     alpha=0.2, color=c)
 
 f = 14
 t_ax = global_vars.months
 def plot_monthly_series_pannel(axes, C_conc, C_omf, std_conc, std_omf, title, limits, pos, left_axis=False):
-    """ This function plots the ocean carbon concentration and OMF for each biomolecule averaged over the Arctic
-    :returns subplot instances to customize legend later on"""
+    """
+    This function plots the ocean carbon concentration and OMF for each biomolecule averaged over the Arctic
+    :returns : None
+    """
     ax = axes[0]
     ax2 = axes[1]
     ax3 = ax2.twinx()
@@ -87,13 +93,17 @@ def plot_monthly_series_pannel(axes, C_conc, C_omf, std_conc, std_omf, title, li
                    linestyle='-.')
     fill_between_shade(ax, t_ax, C_conc[2], std_conc[2], 'darkred')
 
-    ax.set_ylabel(f"Carbon concentration \n ({global_vars.units_concentration})", fontsize=f)
+    ax.set_ylabel(f"Carbon concentration \n ({global_vars.units_concentration})",
+                  fontsize=f)
     ax.set_ylim(limits[0])
     ax.yaxis.set_tick_params(labelsize=f)
 
-    ax2.set_ylabel("OMF (10$^{-1}$) \n PCHO $_{aer}$,  DCAA$_{aer}$  ", fontsize=f)
+    ax2.set_ylabel("OMF (10$^{-1}$) \n PCHO $_{aer}$,  DCAA$_{aer}$  ",
+                   fontsize=f)
     ax2.set_ylim(0, 0.02*factor_pcho)
-    ax3.set_ylabel("OMF PL$_{aer}$", color='darkred', fontsize=f)
+    ax3.set_ylabel("OMF PL$_{aer}$",
+                   color='darkred',
+                   fontsize=f)
     ax3.set_ylim(0, 0.5*factor_pl)
 
     ax.set_ylim(limits[0])
@@ -104,17 +114,23 @@ def plot_monthly_series_pannel(axes, C_conc, C_omf, std_conc, std_omf, title, li
 
     #     fig.legend(handles=[p2,p21, p22],ncol = len(ax.lines),
     #                bbox_to_anchor=(0.1, 0.1),loc='lower left',fontsize = 16)
-    ax.legend(loc='upper right', fontsize=f-2)
-    ax2.legend(loc='upper left', fontsize=f-2)
-    ax3.legend(loc='upper right', fontsize=f-2)
+    ax.legend(loc='upper right',
+              fontsize=f-2)
+    ax2.legend(loc='upper left',
+               fontsize=f-2)
+    ax3.legend(loc='upper right',
+               fontsize=f-2)
     ax3.spines['right'].set_color('darkred')
-    ax3.tick_params(axis='y', colors='darkred')
+    ax3.tick_params(axis='y',
+                    colors='darkred')
 
 
 def plot_seasons_reg(ax, C_conc, C_omf, na, c, lw, ylabels, ylims, reg_gray_line=False):
-    """ This function plots the ocean carbon concentration and OMF for each group averaged over the
+    """
+    This function plots the ocean carbon concentration and OMF for each group averaged over the
     Arctic and every Arctic subregion
-    :returns None"""
+    :returns None or 2 matplotlib objects
+    """
     if na != 'Arctic':
         line_sty = '--'
     else:
@@ -127,17 +143,32 @@ def plot_seasons_reg(ax, C_conc, C_omf, na, c, lw, ylabels, ylims, reg_gray_line
 
     #   Plot gray lines only
     if reg_gray_line:
-        p2 = ax.plot(t_ax, C_conc, color=c, label='Arctic', linewidth=lw)
-        p3 = ax2.plot(t_ax, C_omf, color=c, label='Arctic', linewidth=lw)
+        p2 = ax.plot(t_ax,
+                     C_conc,
+                     color=c,
+                     label='Arctic',
+                     linewidth=lw)
+        p3 = ax2.plot(t_ax,
+                      C_omf,
+                      color=c,
+                      label='Arctic',
+                      linewidth=lw)
 
     else:
         p2, = ax.plot(t_ax, C_conc,
-                      linewidth=lw, label=na, color=c, linestyle=line_sty)  # linestyle = li_style,
+                      linewidth=lw,
+                      label=na,
+                      color=c,
+                      linestyle=line_sty)
         #     p1 = ax.plot(t_ax, C_conc[1],color = c,linestyle = 'dashed',label = 'PL',linewidth = lw)
         p3, = ax2.plot(t_ax, C_omf,
-                       linewidth=lw, label=na, color=c, linestyle=line_sty)  # linestyle = li_style,
+                       linewidth=lw,
+                       label=na,
+                       color=c,
+                       linestyle=line_sty)
 
-    ax.set_ylabel("PL$_{sw}$" + f" Carbon concentration \n ({global_vars.units_concentration})", fontsize=f)
+    ax.set_ylabel("PL$_{sw}$" + f" Carbon concentration \n ({global_vars.units_concentration})",
+                  fontsize=f)
     ax.set_ylim(0, 1.5)
     ax.yaxis.set_tick_params(labelsize=f)
 
@@ -147,13 +178,17 @@ def plot_seasons_reg(ax, C_conc, C_omf, na, c, lw, ylabels, ylims, reg_gray_line
 
     ax.xaxis.set_tick_params(labelsize=f)
 
-    ax2.set_xlabel("Months", fontsize=f)
-    ax.set_xlabel("Months", fontsize=f)
+    ax2.set_xlabel("Months",
+                   fontsize=f)
+    ax.set_xlabel("Months",
+                  fontsize=f)
 
     if na == 'Arctic' and reg_gray_line:
         print('here')
-        ax.legend(loc='upper left', fontsize=f-2)
-        ax2.legend(loc='upper left', fontsize=f-2)
+        ax.legend(loc='upper left',
+                  fontsize=f-2)
+        ax2.legend(loc='upper left',
+                   fontsize=f-2)
     if reg_gray_line:
         pass
     else:
@@ -161,8 +196,23 @@ def plot_seasons_reg(ax, C_conc, C_omf, na, c, lw, ylabels, ylims, reg_gray_line
 
 
 def plot_seasons_reg_conc_ice(ax, var, na, c, title, vm, lstyle, lower_axis=False):
+    """
+    Plots the seasonality per region of variable var and customize axis
+    :param ax: sub-axis instance
+    :var var: data with monthly values
+    :param na: region name
+    :param c: color
+    :param title: subplot title
+    :param vm: y-axis limits
+    :param lstyle: line style
+    :param lower_axis: boolean to indicate whether to plot the x-axis label of the bottom axis or not
+    :return: matplotlib object
+    """
     p1, = ax.plot(t_ax, var,
-                  linewidth=1.5, label=na, color=c, linestyle=lstyle)  # + ' ['+diff+']', )#linestyle = li_style,
+                  linewidth=1.5,
+                  label=na,
+                  color=c,
+                  linestyle=lstyle)  # + ' ['+diff+']', )#linestyle = li_style,
     ax.set_title('\n '+ title[0][0],
                  loc='right',
                  fontsize=f,
@@ -176,7 +226,8 @@ def plot_seasons_reg_conc_ice(ax, var, na, c, title, vm, lstyle, lower_axis=Fals
     ax.yaxis.set_tick_params(labelsize=f)
 
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
-    ax.grid(linestyle='--', linewidth=0.4)
+    ax.grid(linestyle='--',
+            linewidth=0.4)
 
     ax.xaxis.set_tick_params(labelsize=f)
     if lower_axis:
@@ -186,12 +237,27 @@ def plot_seasons_reg_conc_ice(ax, var, na, c, title, vm, lstyle, lower_axis=Fals
 
 
 def plot_seasons_reg_only(ax, C_conc, na, c, title):
-
+    """
+    Plots the seasonality per region of variable var and customize axis
+    :param ax: sub-axis instance
+    :param C_conc: list monthly values of concentrations
+    :param na: region name
+    :param c: color
+    :param title: subplot title
+    :return: matplotlib object
+    """
     p1, = ax.plot(t_ax, C_conc[0],
-                  linewidth=2, label=na, color=c, linestyle='dashed')  # linestyle = li_style,
-    p2, = ax.plot(t_ax, C_conc[1], label=na, color=c, linestyle='solid')
+                  linewidth=2,
+                  label=na,
+                  color=c,
+                  linestyle='dashed')  # linestyle = li_style,
+    p2, = ax.plot(t_ax, C_conc[1],
+                  label=na,
+                  color=c,
+                  linestyle='solid')
 
-    ax.set_ylabel(f"Carbon concentration \n ({global_vars.units_concentration})", fontsize=f)
+    ax.set_ylabel(f"Carbon concentration \n ({global_vars.units_concentration})",
+                  fontsize=f)
     # ax.set_yscale('log')
     # ax.set_ylim(0, 7)
     ax.yaxis.set_tick_params(labelsize=f)
@@ -205,19 +271,25 @@ def plot_seasons_reg_only(ax, C_conc, na, c, title):
                  fontsize=f,
                  weight='bold')
     ax.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
-    ax.grid(linestyle='--', linewidth=0.4)
+    ax.grid(linestyle='--',
+            linewidth=0.4)
 
     #     ax.set_title(titles[i], fontsize = 16)
     #     ax.set_title(titles_1[i], loc='right', fontsize = 16)
     ax.xaxis.set_tick_params(labelsize=f)
-    ax.legend([p1, p2], ['PCHO', 'PL'], loc='upper right', fontsize=f)
+    ax.legend([p1, p2], ['PCHO', 'PL'],
+              loc='upper right',
+              fontsize=f)
 
     return p2
 
 def seasonality_conc_omf_arctic_and_reg(reg_data):
-    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
-    :returns None"""
-    fig, axs = plt.subplots(2, 2, figsize=(12, 8))  # 15,8
+    """
+    This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None
+    """
+    fig, axs = plt.subplots(2, 2,
+                            figsize=(12, 8))  # 15,8
     ax = axs.flatten()
 
     fig.subplots_adjust(right=0.75)
@@ -280,35 +352,29 @@ def seasonality_conc_omf_arctic_and_reg(reg_data):
         for i, val in enumerate(C_omf):
             list_conc_x_month[i].append(C_conc[i])
             list_omf_x_month[i].append(val)
-        # uncomment to create plot with gray lines for the regions intead of coloured
-        # if na != 'Antarctica' and na != 'Arctic':
-        #     plot_seasons_reg(axs, C_conc, C_omf, \
-        #                      na, 'gray', 0.7)
-        #     for i, val in enumerate(C_omf):
-        #         list_conc_x_month[i].append(C_conc[i])
-        #         list_omf_x_month[i].append(val)
-        #
-        # if na == 'Arctic':
-        #     plot_seasons_reg(axs, C_conc, C_omf, \
-        #                      na, 'k', 2)
-        #     C_conc_ar, C_omf_ar = C_conc, C_omf
-        #     for i, val in enumerate(C_omf):
-        #         list_conc_x_month[i].append(C_conc[i])
-        #         list_omf_x_month[i].append(val)
-
-    from statistics import variance
 
     var_conc = C_conc_std[-1]
-    fill_between_shade(axs[0], t_ax, C_conc_ar, var_conc, 'gray')
+    fill_between_shade(axs[0],
+                       t_ax,
+                       C_conc_ar,
+                       var_conc,
+                       'gray')
 
     var_omf = data_omf_std['Total OMF']
-    fill_between_shade(axs[1], t_ax, C_omf_ar, var_omf, 'gray')
+    fill_between_shade(axs[1],
+                       t_ax,
+                       C_omf_ar,
+                       var_omf,
+                       'gray')
 
     for i, axs in enumerate(ax):
-        axs.set_title(titles_1[i], loc='right', fontsize=f)
+        axs.set_title(titles_1[i],
+                      loc='right',
+                      fontsize=f)
         axs.xaxis.set_tick_params(labelsize=f)
-        axs.grid(linestyle='--', linewidth=0.4)
-        axs.xaxis.set_minor_locator(AutoMinorLocator(2))  # 4 minor intervals → 3 minor ticks
+        axs.grid(linestyle='--',
+                 linewidth=0.4)
+        axs.xaxis.set_minor_locator(AutoMinorLocator(2))  # 4 minor intervals --> 3 minor ticks
 
         axs.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
 
@@ -321,13 +387,18 @@ def seasonality_conc_omf_arctic_and_reg(reg_data):
                loc='upper center',
                fontsize=f)
     fig.tight_layout()
-    plt.savefig(f'Multiannual monthly trends poles and subregions{yr}_updated.png', dpi=300, bbox_inches="tight")
+    plt.savefig(f'{global_vars.plot_dir}/Multiannual monthly trends poles and subregions{yr}_updated.png',
+                dpi=300,
+                bbox_inches="tight")
 
 
 def yearly_seasonality_arctic_and_reg(reg_data, variable, mv):
-    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
-    :returns None"""
-    fig, axs = plt.subplots(4, 3, figsize=(14, 12))  # 15,8
+    """
+    This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None
+    """
+    fig, axs = plt.subplots(4, 3,
+                            figsize=(14, 12))  # 15,8
     ax = axs.flatten()
     fig.subplots_adjust(right=0.75)
     yr = 'months_30_yr'
@@ -349,7 +420,9 @@ def yearly_seasonality_arctic_and_reg(reg_data, variable, mv):
 
         year_list = C_conc_dim.time.dt.year.values
         month_list = C_conc_dim.time.dt.month.values
-        C_conc_pd = pd.DataFrame({'values':C_conc, 'years': year_list, 'months': month_list})
+        C_conc_pd = pd.DataFrame({'values':C_conc,
+                                  'years': year_list,
+                                  'months': month_list})
         C_conc_pd['years'] = C_conc_pd['years'].astype(str)
 
         p1 = sns.lineplot(data=C_conc_pd,
@@ -359,7 +432,8 @@ def yearly_seasonality_arctic_and_reg(reg_data, variable, mv):
                     palette = colors,
                     linestyle='dashed',
                     ax=ax[idx])
-        ax[idx].set_ylabel(f" Carbon concentration \n ({global_vars.units_concentration})", fontsize=f)
+        ax[idx].set_ylabel(f" Carbon concentration \n ({global_vars.units_concentration})",
+                           fontsize=f)
         ax[idx].set_ylim(0, mv)
         ax[idx].set_xlim(1, 12)
 
@@ -382,15 +456,17 @@ def yearly_seasonality_arctic_and_reg(reg_data, variable, mv):
                loc='upper center',
                fontsize=f)
     fig.tight_layout()
-    plt.savefig(f'Yearly_monthly_poles_subregions_{variable}_Concentration.png',
+    plt.savefig(f'{global_vars.plot_dir}/Yearly_monthly_poles_subregions_{variable}_Concentration.png',
                 dpi=300,
                 bbox_inches="tight")
     plt.close()
 
 
 def yearly_seasonality_arctic_and_reg_heatmap(reg_data, group, variable, mv):
-    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
-    :returns None"""
+    """
+    This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None
+    """
     fig, axs = plt.subplots(3, 4,
                             figsize=(20, 18))  # 15,8
     fig.suptitle(f'Arctic and Arctic subregions seasonality for {variable} ocean concentration \n',
@@ -417,7 +493,9 @@ def yearly_seasonality_arctic_and_reg_heatmap(reg_data, group, variable, mv):
 
         year_list = C_conc_dim.time.dt.year.values
         month_list = C_conc_dim.time.dt.month.values
-        C_conc_pd = pd.DataFrame({'values':C_conc_norm, 'years': year_list, 'months': month_list})
+        C_conc_pd = pd.DataFrame({'values':C_conc_norm,
+                                  'years': year_list,
+                                  'months': month_list})
         C_conc_pd['years'] = C_conc_pd['years'].astype(str)
         C_conc_pd_sel = C_conc_pd[C_conc_pd['months']>3]
         C_conc_pd_sel2 = C_conc_pd_sel[C_conc_pd_sel['months']<12]
@@ -431,8 +509,10 @@ def yearly_seasonality_arctic_and_reg_heatmap(reg_data, group, variable, mv):
                     fmt='.1f',
                     ax = ax[idx],
                     linewidths = .5,)
-        ax[idx].set(xlabel='Months', ylabel='', )
-        ax[idx].set_xlabel('Months', fontsize=f)
+        ax[idx].set(xlabel='Months',
+                    ylabel='', )
+        ax[idx].set_xlabel('Months',
+                           fontsize=f)
         p1.figure.axes[-1].tick_params(labelsize=f)
         ax[idx].tick_params(labelsize=f)
         p1.invert_yaxis()
@@ -442,15 +522,17 @@ def yearly_seasonality_arctic_and_reg_heatmap(reg_data, group, variable, mv):
     ax[-1].axis('off')
 
     fig.tight_layout()
-    plt.savefig(f'Yearly_monthly_poles_subregions_{variable}_Concentration_heatmaps.png',
+    plt.savefig(f'{global_vars.plot_dir}/Yearly_monthly_poles_subregions_{variable}_Concentration_heatmaps.png',
                 dpi=300,
                 bbox_inches="tight")
     plt.close()
 
 
 def yearly_seasonality_specific_reg_heatmap(reg_data):
-    """ This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
-    :returns None"""
+    """
+    This function creates the four-panel plot of biomolecules and OMF seasonality for the Arctic and Arctic subregions
+    :returns None
+    """
     fig, axs = plt.subplots(2, 3,
                             figsize=(12, 12),
                             gridspec_kw={'width_ratios': [1,1,1], 'wspace':0.2},
@@ -493,7 +575,9 @@ def yearly_seasonality_specific_reg_heatmap(reg_data):
 
         year_list = C_conc_dim.time.dt.year.values
         month_list = C_conc_dim.time.dt.month.values
-        C_conc_pd = pd.DataFrame({'normval':C_conc_norm, 'years': year_list, 'months': month_list})
+        C_conc_pd = pd.DataFrame({'normval':C_conc_norm,
+                                  'years': year_list,
+                                  'months': month_list})
         C_conc_pd['years'] = C_conc_pd['years'].astype(str)
         C_conc_pd_sel = C_conc_pd[C_conc_pd['months']>4]
         C_conc_pd_sel2 = C_conc_pd_sel[C_conc_pd_sel['months']<10]
@@ -527,25 +611,33 @@ def yearly_seasonality_specific_reg_heatmap(reg_data):
         ax[idx].invert_yaxis()
 
         if variables[idx] == 'PCHO':
-            ax[idx].set_xlabel(' ', fontsize=f)
+            ax[idx].set_xlabel(' ',
+                               fontsize=f)
         else:
-            ax[idx].set_xlabel('Months', fontsize=f)
+            ax[idx].set_xlabel('Months',
+                               fontsize=f)
         if regions[idx] != 'Kara Sea':
-            ax[idx].tick_params(axis='y',labelleft=False, left=False)
+            ax[idx].tick_params(axis='y',
+                                labelleft=False,
+                                left=False)
 
 
-    # fig.tight_layout()
-    plt.savefig(f'Yearly_monthly_poles_specific_subregions_normalized_Concentration_heatmaps.png',
+    plt.savefig(f'{global_vars.plot_dir}/Yearly_monthly_poles_specific_subregions_normalized_Concentration_heatmaps.png',
                 dpi=300,)
-                # bbox_inches="tight")
     plt.close()
 
 
 
 def seasonality_plot_thesis(reg_data):
+    """
+    Plots seasonality of Arctic subregions for multiple variables
+    :param reg_data: dictionary with region names as keys
+    :return: None
+    """
     for yr in list(reg_data['Arctic'].keys()):
 
-        fig, axis = plt.subplots(2, 2, figsize=(10, 8))  # 15,8
+        fig, axis = plt.subplots(2, 2,
+                                 figsize=(10, 8))  # 15,8
         axs = axis.flatten()
         fig.subplots_adjust(right=0.75)
         limits = [[0, 7.5], [1e-6, 1e0], [0.1, 0.23]]
@@ -628,19 +720,24 @@ def seasonality_plot_thesis(reg_data):
                    ncol=3,
                    bbox_to_anchor=(0.97, 0.),
                    fontsize=f)
-        #fig.legend(handles=leg_list, bbox_to_anchor=(0.93, 0.11), loc='lower left', fontsize=18)
         fig.tight_layout()
-        plt.savefig(f'Seasonal_concent_omf_regions_{yr}.png', dpi=300, bbox_inches="tight")
+        plt.savefig(f'{global_vars.plot_dir}/Seasonal_concent_omf_regions_{yr}.png',
+                    dpi=300,
+                    bbox_inches="tight")
 
 
 def regions_map(reg_data):
+    """
+    Creates Arctic subregions map
+    :param reg_data: Dictionary with sample data per regions
+    :return: None
+    """
     idx = 0
     region_idx = []
     fig, ax = plt.subplots(1, 1, figsize=(7, 4),
                            subplot_kw={'projection': ccrs.NorthPolarStereo()}, )
     ax.set_extent([-180, 180, 63, 90], ccrs.PlateCarree())
 
-    # cmap = mpl.cm.rainbow
     cmap = plt.get_cmap('tab20')
     bounds = np.arange(1, len(list(reg_data.keys())[1:]) + 2)
     cmap = ListedColormap(global_vars.colors_arctic_reg[1:])
@@ -650,7 +747,6 @@ def regions_map(reg_data):
         print(na)
         if na != 'Arctic':
             idx += 1
-            # for y,yr in enumerate(list(reg_data[na].keys())):
             for yr in list(reg_data['Arctic'].keys()):
                 x = reg_data[na][yr]['var_data_region']['Biom']['Total concentration'].mean('month').to_dataset(name='var1')
                 x = x.fillna(0)
@@ -694,7 +790,7 @@ def regions_map(reg_data):
                                                 facecolor='lightgray'))
 
     fig.tight_layout()
-    plt.savefig('Arctic_seas.png', dpi=300)
+    plt.savefig(f'{global_vars.plot_dir}/Arctic_seas.png', dpi=300)
     plt.show()
 
     return None

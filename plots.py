@@ -7,9 +7,19 @@ import global_vars
 import utils
 
 
+def format_func(value, tick_number):
+    """
+    This function will create the months labels considering that January is month 0, it returns 1
+    :returns value+1
+    """
+    N = int(value + 1)
+    return N
+
 def plot_map_box_station(axs, conditions, reg_data_globe, create_fig=False):
-    """ This function creates a map with color-coded boxes defined by "conditions" with names "reg_data_globe"
-    Regions are defined considering the locations where seawater samples were collected """
+    """
+    This function creates a map with color-coded boxes defined by "conditions" with names "reg_data_globe"
+    Regions are defined considering the locations where seawater samples were collected
+    """
     if create_fig:
         fig = plt.figure(figsize=(6, 4))
         projection = ccrs.Robinson(central_longitude=30)
@@ -39,12 +49,14 @@ def plot_map_box_station(axs, conditions, reg_data_globe, create_fig=False):
     plt.legend(fontsize=16)
     if create_fig:
         plt.tight_layout()
-        plt.savefig('Map_boxes.png', dpi=300)
+        plt.savefig(f'{global_vars.plot_dir}/Map_boxes.png', dpi=300)
         plt.close()
 
 def fill_between_shade(ax,t_ax,data,data_std,c):
-    """ This function plots around the data values ("data") the standard deviation
-    ("data_std") as shaded area """
+    """
+    This function plots around the data values ("data") the standard deviation
+    ("data_std") as shaded area
+    """
     fill_min = [x-std for x, std in zip(data, data_std)]
     fill_max = [x+std for x, std in zip(data, data_std)]
 
@@ -52,9 +64,11 @@ def fill_between_shade(ax,t_ax,data,data_std,c):
                     alpha=0.2, color = c)
 
 def plot_each_station(ax2, ax3, data):
-    """ This function plots the observational data for each station and biomolecule on each subfigure
-     containing the predefined boxes around the station locations (as represented in function
-     "plot_map_box_station") """
+    """
+    This function plots the observational data for each station and biomolecule on each subfigure
+    containing the predefined boxes around the station locations (as represented in function
+    "plot_map_box_station")
+    """
     for sta in data['names']:
         for v_id, v in enumerate(sta['monthly_mean'].columns):
             new_months = [m - 1 for m in sta['months']]
@@ -67,7 +81,9 @@ def plot_each_station(ax2, ax3, data):
                        fmt='o')
 
 def plot_monthly_series_pannel(axes, C_omf, std_omf, title, limits, var_id, pos, c, data_stations, font, lower_axis=False, stations=False):
-    """ This function plots the seasonality of the ocean biomolecule concentration or OMF for predefined regions """
+    """
+    This function plots the seasonality of the ocean biomolecule concentration or OMF for predefined regions
+    """
     t_ax = np.arange(0,12)
     ax2 = axes
     ax3 = ax2.twinx()
@@ -115,9 +131,6 @@ def plot_monthly_series_pannel(axes, C_omf, std_omf, title, limits, var_id, pos,
     else: ax2.set_xlabel(" ", fontsize=font)
     # ax2.legend(loc='upper left', fontsize=14)
 
-    def format_func(value, tick_number):
-        N = int(value + 1)
-        return N
     ax2.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
     ax2.xaxis.set_tick_params(labelsize=font)
 
@@ -127,7 +140,9 @@ def plot_monthly_series_pannel(axes, C_omf, std_omf, title, limits, var_id, pos,
     return p2, p21, p22
 
 def get_vals_std(data, region, var_id):
-    """ Returns lists of data values and standard deviation stored in the "data" dictionary """
+    """
+    Returns lists of data values and standard deviation stored in the "data" dictionary
+    """
 
     da_var = data[region]['months_30_yr']['var_seasonality'][var_id]
     da_std = data[region]['months_30_yr']['var_season_std'][var_id]
@@ -141,8 +156,10 @@ def get_vals_std(data, region, var_id):
     return C_vals, C_vals_std
 
 def plot_seasonality_regions(data):
-    """ This function creates the figure, define axes and other parameters relevant for plotting the
-      seasonality of marine biomolecules and OMF for global oceanic regions"""
+    """
+     This function creates the figure, define axes and other parameters relevant for plotting the
+      seasonality of marine biomolecules and OMF for global oceanic regions
+      """
 
     fig, axs = plt.subplots(5, 2, figsize=(20, 24))  # 15,8
     ax = axs.flatten()
@@ -187,14 +204,16 @@ def plot_seasonality_regions(data):
 
 
     # fig.tight_layout()
-    plt.savefig(f'Multiannual monthly subregions_updated_global.png',
+    plt.savefig(f'{global_vars.plot_dir}/Multiannual monthly subregions_updated_global.png',
                 dpi=300,
                 bbox_inches="tight")
 
 
 def plot_seasonality_regions_AI_MH(data):
-    """ This function creates the figure, define axes and other parameters relevant for plotting the
-      seasonality of marine biomolecules and OMF for AI and MH stations"""
+    """
+     This function creates the figure, define axes and other parameters relevant for plotting the
+     seasonality of marine biomolecules and OMF for AI and MH stations
+    """
 
     fig, axs = plt.subplots(2, 2, figsize=(18, 12))  # 15,8
     ax = axs.flatten()
@@ -239,16 +258,18 @@ def plot_seasonality_regions_AI_MH(data):
 
 
     # fig.tight_layout()
-    plt.savefig(f'Multiannual_monthly_subregions_AI_MH.png',
+    plt.savefig(f'{global_vars.plot_dir}/Multiannual_monthly_subregions_AI_MH.png',
                 dpi=300,
                 bbox_inches="tight")
 
 
 
 def plot_seasonality_regions_with_stations(data):
-    """ This function creates the figure, define axes and other parameters relevant for plotting the
-      seasonality of marine biomolecules and observational data for regions defined around the station
-      locations """
+    """
+    This function creates the figure, define axes and other parameters relevant for plotting the
+    seasonality of marine biomolecules and observational data for regions defined around the station
+    locations
+    """
     fig, axs = plt.subplots(3, 2,
                             figsize=(14, 12),
                             constrained_layout=True)  # 15,8
@@ -256,7 +277,7 @@ def plot_seasonality_regions_with_stations(data):
 
     ax = axs.flatten()
     c = global_vars.color_regions
-    dict_stat_groups= utils.read_ocean_data_monthly(ax)
+    dict_stat_groups= utils.read_ocean_data_monthly()
 
     order_keys = ['NAO', 'WAP', 'SATL, CVAO', 'PUR', 'NWAO, SB', 'AS, WMED'] #'AI'
     print(data.keys())
@@ -309,7 +330,7 @@ def plot_seasonality_regions_with_stations(data):
               size=f,
               weight='bold',)
     # fig.tight_layout()/
-    plt.savefig(f'Multiannual monthly subregions_updated_global_stations.png',
+    plt.savefig(f'{global_vars.plot_dir}/Multiannual monthly subregions_updated_global_stations.png',
                 dpi=300,
                 bbox_inches="tight")
     plt.close()
