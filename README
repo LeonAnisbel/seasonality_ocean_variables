@@ -1,7 +1,0 @@
-The scripts in this project computes the seasonality of ocean variables (e.g. biomolecules, phytoplankton concentration
-and SIC) and Organic mass fraction from marine biomolecules.
-Biomolecules (DCAA and PL) were computed based on FESOM-REcoM tracers. See more information in Leon-Marcos et al. 2025
-
-- Customize the desire experiments (e.g. regions to select) and directories to the data in global_vars.py file
-- Run Seasonality_regions.py to compute the multiannual monthly mean of all variables
-- Run plot_figures.py to create all figures (information of the figures that are created is provided in this file)
