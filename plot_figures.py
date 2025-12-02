@@ -19,6 +19,7 @@ if global_vars.arctic_regions:
         reg_data_globe_stat = pickle.load(f)
     # Creates plot Fig. 3 submitted to ACP (https://egusphere.copernicus.org/preprints/2025/egusphere-2025-2829/)
     arctic_plots.seasonality_conc_omf_arctic_and_reg(reg_data_globe_stat)
+    arctic_plots.seasonality_plot_thesis(reg_data_globe_stat, paper=True)
 
     with open(global_vars.pkl+'/reg_data_arctic_regions_63_arctic_limit.pkl', 'rb') as f:
         reg_data_globe_stat = pickle.load(f)
