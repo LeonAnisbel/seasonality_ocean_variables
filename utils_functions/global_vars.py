@@ -1,7 +1,7 @@
 import numpy as np
 path_omf =  f"/Users/Leon/Desktop/Folder_from_linux/Downloads/Observ_sites_maps/Burows_param/"
 path_ocean = f"/Users/leon/Desktop/Burrows_param/DATA_BGC_model/fesom-recon_BGC/regular_grid_interp/"
-pkl = './pkl_files'
+pkl = '../pkl_files'
 seasonality_stations = False
 seasonality_stations_MH_AI = False
 arctic_regions = True # comment if not wanted

@@ -121,10 +121,7 @@ for i_id, var in enumerate(list_vars):
             if global_vars.arctic_regions:
                 utils.var_alloc_val(reg_data_globe[na], yr, 'var_data_region', v_id, var_data_reg)
 
-try:
-    os.makedirs(global_vars.pkl)
-except OSError:
-    pass
+
 with open(f'{global_vars.pkl}/{file_name}.pkl', 'wb') as handle:
     pickle.dump(reg_data_globe, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
