@@ -10,10 +10,9 @@ from cartopy.mpl.gridliner import LATITUDE_FORMATTER
 from matplotlib.ticker import AutoMinorLocator
 
 import plots
-import utils
-import global_vars
-from utils import rm_nan
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from utils_functions import utils, global_vars
+from utils_functions.utils import rm_nan
+from matplotlib.colors import ListedColormap
 import seaborn as sns
 
 
@@ -628,7 +627,7 @@ def yearly_seasonality_specific_reg_heatmap(reg_data):
 
 
     plt.savefig(f'{global_vars.plot_dir}/Yearly_monthly_poles_specific_subregions_normalized_Concentration_heatmaps.png',
-                dpi=300,)
+                dpi=300, )
     plt.close()
 
 

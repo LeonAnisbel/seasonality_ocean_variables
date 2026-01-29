@@ -3,10 +3,9 @@
 
 
 # ##### Import packges
-import global_vars
 import os
 import pickle
-import utils
+from utils_functions import utils, global_vars
 
 #read data
 C_ice =  utils.read_files_data(global_vars.data_dir + 'ice_var*')['sic']
@@ -112,12 +111,12 @@ for i_id, var in enumerate(list_vars):
         for y,yr in enumerate(list(reg_data_globe[na].keys())):
             # select data per regions and return multiannual monthly means and std
             var_mo_season, var_season_std, var_data_reg = utils.find_region(var,
-                                                         conditions[i],
-                                                         na,
-                                                         years_set)
+                                                                            conditions[i],
+                                                                            na,
+                                                                            years_set)
             # save data into a dictionary
-            utils.var_alloc_val(reg_data_globe[na], yr, 'var_seasonality',v_id, var_mo_season)
-            utils.var_alloc_val(reg_data_globe[na], yr, 'var_season_std',v_id, var_season_std)
+            utils.var_alloc_val(reg_data_globe[na], yr, 'var_seasonality', v_id, var_mo_season)
+            utils.var_alloc_val(reg_data_globe[na], yr, 'var_season_std', v_id, var_season_std)
 
             if global_vars.arctic_regions:
                 utils.var_alloc_val(reg_data_globe[na], yr, 'var_data_region', v_id, var_data_reg)

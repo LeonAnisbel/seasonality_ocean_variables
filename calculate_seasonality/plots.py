@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import matplotlib.patches as mpatches
 
-import global_vars
-import utils
+from utils_functions import utils, global_vars
 
 
 def format_months(x, pos):

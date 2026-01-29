@@ -1,7 +1,7 @@
 import xarray as xr
 import pandas as pd
 import global_vars
-import plots
+from calculate_seasonality import plots
 import codecs
 import numpy as np
 import warnings
