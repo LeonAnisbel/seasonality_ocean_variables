@@ -7,13 +7,12 @@ import global_vars
 import utils
 
 
-def format_func(value, tick_number):
+def format_months(x, pos):
     """
     This function will create the months labels considering that January is month 0, it returns 1
     :returns value+1
     """
-    N = int(value + 1)
-    return N
+    return f"{int(x) + 1}"
 
 def plot_map_box_station(axs, conditions, reg_data_globe, create_fig=False):
     """
@@ -131,7 +130,8 @@ def plot_monthly_series_pannel(axes, C_omf, std_omf, title, limits, var_id, pos,
     else: ax2.set_xlabel(" ", fontsize=font)
     # ax2.legend(loc='upper left', fontsize=14)
 
-    ax2.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
+    ax2.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    ax2.xaxis.set_major_formatter(plt.FuncFormatter(format_months))
     ax2.xaxis.set_tick_params(labelsize=font)
 
 

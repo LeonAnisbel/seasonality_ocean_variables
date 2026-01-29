@@ -8,8 +8,9 @@ import pandas as pd
 from matplotlib import ticker as mticker
 from cartopy.mpl.gridliner import LATITUDE_FORMATTER
 from matplotlib.ticker import AutoMinorLocator
+
+import plots
 import utils
-from utils_plots import *
 import global_vars
 from utils import rm_nan
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
@@ -225,7 +226,8 @@ def plot_seasons_reg_conc_ice(ax, var, na, c, title, vm, lstyle, lower_axis=Fals
     ax.set_ylim(vm[0], vm[1])
     ax.yaxis.set_tick_params(labelsize=f)
 
-    ax.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
+    ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(plots.format_months))
     ax.grid(linestyle='--',
             linewidth=0.4)
 
@@ -270,7 +272,8 @@ def plot_seasons_reg_only(ax, C_conc, na, c, title):
                  loc='left',
                  fontsize=f,
                  weight='bold')
-    ax.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
+    ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(plots.format_months))
     ax.grid(linestyle='--',
             linewidth=0.4)
 
@@ -289,7 +292,7 @@ def seasonality_conc_omf_arctic_and_reg(reg_data):
     :returns None
     """
     fig, axs = plt.subplots(1, 2,
-                            figsize=(8, 3))  # 15,8
+                            figsize=(8.5, 3))  # 15,8
     ax = axs.flatten()
 
     fig.subplots_adjust(right=0.75)
@@ -375,8 +378,8 @@ def seasonality_conc_omf_arctic_and_reg(reg_data):
         axs.grid(linestyle='--',
                  linewidth=0.4)
         axs.xaxis.set_minor_locator(AutoMinorLocator(2))  # 4 minor intervals --> 3 minor ticks
-
-        axs.xaxis.set_major_formatter(plt.FuncFormatter(format_func))
+        axs.xaxis.set_major_locator(plt.MaxNLocator(integer=True))
+        axs.xaxis.set_major_formatter(plt.FuncFormatter(plots.format_months))
         axs.set_xlabel("Months",
                        fontsize=f-2)
 
@@ -638,7 +641,7 @@ def seasonality_plot_thesis(reg_data, paper=False):
     """
     if paper:
         fig, axis = plt.subplots(3, 2,
-                                 figsize=(10, 10))  # 15,8
+                                 figsize=(9, 10))  # 15,8
         sic_lab = 'with_sic'
     else:
         fig, axis = plt.subplots(2, 2,
@@ -764,6 +767,18 @@ def seasonality_plot_thesis(reg_data, paper=False):
                                               [0, 100],
                                               linestyle[idx],
                                               lower_axis=True)
+
+                    # sst = data['Other']['SST']
+                    # sst = [s-273.16 for s in sst]
+                    # title = ["SST", r'$\bf{(f)}$']
+                    # plot_seasons_reg_conc_ice(axs[5],
+                    #                           sst,
+                    #                           na,
+                    #                           color_reg[idx],
+                    #                           [title, '$^{o}C$'],
+                    #                           [-2, 6],
+                    #                           linestyle[idx],
+                    #                           lower_axis=True)
                     axs[5].axis('off')
 
         box = axs[0].get_position()
